@@ -6,6 +6,6 @@ Este repositório contém a codificação do serviço backend do serviço Lottus
 
 ## 📦 Instalação
 ```sh
-git clone https://github.com/LottusOrg/lottus-backend.git
+git clone https://github.com/Lottus-Solutions/lottus-backend.git
 cd lottus-backend
 npm install
