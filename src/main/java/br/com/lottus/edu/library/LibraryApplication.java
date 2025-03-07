@@ -13,9 +13,4 @@ public class LibraryApplication {
         SpringApplication.run(LibraryApplication.class, args);
     }
 
-    @GetMapping("/")
-    public String helloWorld() {
-        return "Hello World";
-    }
-
 }
