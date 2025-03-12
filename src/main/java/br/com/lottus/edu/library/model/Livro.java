@@ -9,19 +9,22 @@ public class Livro {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private String titulo;
+    private String nome;
     private String autor;
-    private String categoria;
-    private Boolean disponivel;
     private Integer quantidade;
+    private Boolean status;
+
+    @ManyToOne
+    @JoinColumn(name = "fk_categoria", nullable = false)
+    private Categoria categoria;
 
     public Livro() {}
 
-    public Livro(String titulo, String autor, String categoria, Boolean disponivel, Integer quantidade) {
-        this.titulo = titulo;
+    public Livro(String nome, String autor, Categoria categoria, Boolean status, Integer quantidade) {
+        this.nome = nome;
         this.autor = autor;
         this.categoria = categoria;
-        this.disponivel = disponivel;
+        this.status = status;
         this.quantidade = quantidade;
     }
 
@@ -33,12 +36,12 @@ public class Livro {
         this.id = id;
     }
 
-    public String getTitulo() {
-        return titulo;
+    public String getNome() {
+        return nome;
     }
 
-    public void setTitulo(String titulo) {
-        this.titulo = titulo;
+    public void setNome(String nome) {
+        this.nome = nome;
     }
 
     public String getAutor() {
@@ -49,20 +52,20 @@ public class Livro {
         this.autor = autor;
     }
 
-    public String getCategoria() {
+    public Categoria getCategoria() {
         return categoria;
     }
 
-    public void setCategoria(String categoria) {
+    public void setCategoria(Categoria categoria) {
         this.categoria = categoria;
     }
 
-    public Boolean getDisponivel() {
-        return disponivel;
+    public Boolean getStatus() {
+        return status;
     }
 
-    public void setDisponivel(Boolean disponivel) {
-        this.disponivel = disponivel;
+    public void setStatus(Boolean status) {
+        this.status = status;
     }
 
     public Integer getQuantidade() {

@@ -1,8 +1,11 @@
 package br.com.lottus.edu.library.controller;
 
-import br.com.lottus.edu.library.model.Livro;
+import br.com.lottus.edu.library.dto.LivroRequestDTO;
+import br.com.lottus.edu.library.dto.LivroResponseDTO;
+import br.com.lottus.edu.library.repository.CategoriaRepository;
 import br.com.lottus.edu.library.service.LivroService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -16,19 +19,21 @@ public class LivroController {
     private LivroService livroService;
 
     @GetMapping
-    public ResponseEntity<List<Livro>> listarLivros() {
-        return ResponseEntity.ok(livroService.buscarTodos());
+    public ResponseEntity<List<LivroResponseDTO>> buscarTodos() {
+        List<LivroResponseDTO> livros = livroService.buscarTodos();
+        return ResponseEntity.ok(livros);
     }
 
     @PostMapping
-    public ResponseEntity<String> adicionarLivro(@RequestBody Livro livro) {
-        livroService.cadastrarLivro(livro);
-        return ResponseEntity.status(201).body("Livro cadastrado com sucesso");
+    public ResponseEntity<LivroResponseDTO> adicionarLivro(@RequestBody LivroRequestDTO livroDTO) {
+        LivroResponseDTO response = livroService.cadastrarLivro(livroDTO);
+        return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<Livro> atualizarLivro(@RequestBody Livro livro, @PathVariable Long id) {
-       return livroService.atualizarLivro(livro, id);
+    public ResponseEntity<LivroResponseDTO> atualizarLivro(@RequestBody LivroRequestDTO livroRequestDTO, @PathVariable Long id) {
+       LivroResponseDTO response = livroService.atualizarLivro(livroRequestDTO, id);
+       return ResponseEntity.status(HttpStatus.OK).body(response);
     }
 
     @DeleteMapping("/{id}")
