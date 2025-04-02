@@ -33,14 +33,17 @@ public class AlunoController {
     @Operation(summary = "Cadastra um novo aluno")
     @PostMapping("/cadastrar")
         public ResponseEntity<Aluno> adicionarAluno(@RequestBody AlunoDTO alunodto){
+
+            System.out.println("Objeto alunoDTO" + alunodto.toString());
             Aluno newAluno = alunoService.adicionarAluno(alunodto);
+            System.out.println("novo aluno a ser cadastrado" + newAluno.toString());
 
             return ResponseEntity.ok(newAluno);
         }
 
     @Operation(summary = "Remover aluno pelo numero da Matricula")
-    @DeleteMapping("/remover/{matricula}")
 
+    @DeleteMapping("/remover/{matricula}")
     public ResponseEntity<String> removerAluno(@PathVariable String matricula){
         Optional<Aluno> aluno = alunoRepository.findByMatricula(matricula);
 
@@ -80,6 +83,20 @@ public class AlunoController {
         }
 
 
+    }
+
+    @Operation(summary = "Obtem aluno pelo numero da Matricula")
+    @GetMapping("/{matricula}")
+    public ResponseEntity<Aluno> buscarPorMatricula(@PathVariable String matricula){
+        return alunoService.buscarAlunoPorMatricula(matricula)
+                .map(ResponseEntity::ok)
+                .orElse(ResponseEntity.notFound().build());
+    }
+
+    @Operation(summary = "Obtem alunos de uma determinada turma")
+    @GetMapping("/turma/{turmaId}")
+    public ResponseEntity<Iterable<Aluno>> buscarPorTurma(@PathVariable Long turmaId){
+        return ResponseEntity.ok(alunoService.listarAlunosPorTurma(turmaId));
     }
 
 }
