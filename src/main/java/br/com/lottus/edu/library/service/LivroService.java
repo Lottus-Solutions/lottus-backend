@@ -14,6 +14,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
@@ -81,6 +82,18 @@ public class LivroService {
 
         livroRepository.deleteById(id);
         return ResponseEntity.noContent().build();
+    }
+
+    public List<LivroResponseDTO> buscarLivroPorNome(String nome) {
+        return livroRepository.findByNomeContaining(nome).stream()
+                .map(livro -> new LivroResponseDTO(
+                livro.getId(),
+                livro.getNome(),
+                livro.getAutor(),
+                livro.getQuantidade(),
+                livro.getStatus(),
+                livro.getCategoria().getNome()))
+                .toList();
     }
 
 }
