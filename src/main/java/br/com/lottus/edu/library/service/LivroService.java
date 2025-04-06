@@ -2,6 +2,8 @@ package br.com.lottus.edu.library.service;
 
 import br.com.lottus.edu.library.dto.LivroRequestDTO;
 import br.com.lottus.edu.library.dto.LivroResponseDTO;
+import br.com.lottus.edu.library.exception.CategoriaNaoEncontradaException;
+import br.com.lottus.edu.library.exception.LivroNaoEncontradoException;
 import br.com.lottus.edu.library.model.Categoria;
 import br.com.lottus.edu.library.model.Livro;
 import br.com.lottus.edu.library.repository.CategoriaRepository;
@@ -20,6 +22,7 @@ import java.util.List;
 public class LivroService {
 
     private static final Logger log = LoggerFactory.getLogger(LivroService.class);
+
     @Autowired
     private LivroRepository livroRepository;
 
@@ -40,7 +43,7 @@ public class LivroService {
 
     public LivroResponseDTO cadastrarLivro(LivroRequestDTO livroRequestDTO) {
         Categoria categoria = categoriaRepository.findById(livroRequestDTO.categoriaId())
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Categoria não encontrada!"));
+                .orElseThrow(CategoriaNaoEncontradaException::new);
 
         Livro livro = new Livro();
         livro.setNome(livroRequestDTO.nome());
@@ -55,10 +58,10 @@ public class LivroService {
 
     public LivroResponseDTO atualizarLivro(LivroRequestDTO livroRequestDTO, Long id) {
         Livro livro = livroRepository.findById(id)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Livro não encontrado!"));
+                .orElseThrow(() -> new LivroNaoEncontradoException());
 
         Categoria categoria = categoriaRepository.findById(livroRequestDTO.categoriaId())
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Categoria não encontrada!"));
+                .orElseThrow(() -> new CategoriaNaoEncontradaException());
 
         livro.setNome(livroRequestDTO.nome());
         livro.setAutor(livroRequestDTO.autor());
@@ -72,11 +75,12 @@ public class LivroService {
     }
 
     public ResponseEntity<Void> removerLivro(Long id) {
-        if (livroRepository.existsById(id)) {
-            livroRepository.deleteById(id);
-            return ResponseEntity.noContent().build();
+        if (!livroRepository.existsById(id)) {
+            throw new LivroNaoEncontradoException();
         }
-        return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+
+        livroRepository.deleteById(id);
+        return ResponseEntity.noContent().build();
     }
 
 }
