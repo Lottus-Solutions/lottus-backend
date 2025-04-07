@@ -1,0 +1,712 @@
+# Explicação da Autenticação com JWT e Spring Security
+
+## O que é JWT?
+
+JWT (JSON Web Token) é um padrão aberto (RFC 7519) que define uma maneira compacta e independente de transmitir informações entre partes como um objeto JSON. Esses tokens podem ser verificados e confiáveis porque são assinados digitalmente.
+
+Um JWT é dividido em três partes:
+1. **Header**: Contém o tipo de token e o algoritmo de assinatura.
+2. **Payload**: Contém as declarações (claims) - dados sobre o usuário e metadados.
+3. **Signature**: Assinatura para verificar a autenticidade do token.
+
+## Como funciona a autenticação na nossa aplicação
+
+### 1. Fluxo de Autenticação
+
+1. O usuário envia suas credenciais (email e senha) para o endpoint `/auth/login`.
+2. O sistema valida as credenciais usando o `AuthenticationManager` do Spring Security.
+3. Se válidas, o sistema gera um token JWT contendo informações do usuário (ID, email, nome).
+4. O token é enviado de volta ao cliente, que o armazena (ex: localStorage).
+5. Em requisições subsequentes, o cliente envia o token no cabeçalho Authorization.
+6. O sistema valida o token em cada requisição através do filtro `JwtAuthFilter`.
+
+### 2. Principais Componentes
+
+#### SecurityConfig
+
+Esta classe configura o Spring Security com as seguintes definições:
+- Habilita a configuração de segurança baseada em anotações
+- Define endpoints públicos (não autenticados): `/auth/**`, `/swagger-ui/**`
+- Configura políticas de sessão como STATELESS (sem estado)
+- Adiciona o filtro JWT antes do filtro de autenticação padrão
+- Configura o encoder de senha (BCrypt)
+- Define beans para autenticação
+
+```java
+@Configuration
+@EnableWebSecurity
+public class SecurityConfig {
+    // Configuração de segurança...
+}
+```
+
+#### JwtUtil
+
+Esta classe utilitária é responsável por operações relacionadas ao JWT:
+- Gerar tokens com informações do usuário (ID, email, nome)
+- Extrair informações do token (subject/email, ID do usuário)
+- Validar tokens (verificar assinatura e expiração)
+
+Métodos principais:
+- `generateToken`: Cria um token JWT com informações do usuário
+- `extractEmail`: Extrai o email (subject) do token
+- `extractUserId`: Extrai o ID do usuário do token
+- `validateToken`: Verifica se o token é válido e não expirou
+
+#### JwtAuthFilter
+
+Este filtro intercepta todas as requisições HTTP e:
+1. Verifica se existe um token JWT no cabeçalho Authorization
+2. Valida o token usando o JwtUtil
+3. Extrai o usuário e suas permissões
+4. Configura o contexto de segurança do Spring com essas informações
+5. Permite que a requisição continue se estiver tudo certo
+
+O filtro também cria uma classe `CustomUserPrincipal` que armazena tanto o email quanto o ID do usuário, permitindo que os controladores acessem facilmente ambas as informações.
+
+#### CustomUserDetailsService
+
+Esta classe implementa a interface `UserDetailsService` do Spring Security e:
+- Carrega um usuário do banco de dados pelo email
+- Converte o usuário do banco em um `UserDetails` do Spring Security
+- Fornece o objeto de usuário para o sistema de autenticação
+
+#### AuthController
+
+Controlador responsável pelos endpoints de autenticação:
+- `/auth/register`: Registra um novo usuário (senha é criptografada com BCrypt)
+- `/auth/login`: Autentica o usuário e retorna um token JWT
+- `/auth/validate`: Verifica se um token é válido
+
+## Segurança "Por Trás dos Panos"
+
+### 1. Criptografia de Senha com BCrypt
+
+BCrypt é um algoritmo de hash de senha projetado para ser lento e resistente a ataques de força bruta. Ele:
+- Adiciona um "salt" aleatório para cada senha
+- Permite aumentar o fator de trabalho para tornar o hash mais lento (e mais seguro)
+- Auto-verifica se a senha está correta sem precisar desencriptar
+
+### 2. Proteção do Token JWT
+
+Nossa implementação:
+- Usa HS512 (HMAC com SHA-512) para assinatura
+- Armazena informações sensíveis nas claims do token
+- Define um tempo de expiração (30 dias, configurável)
+- Valida a assinatura e a expiração do token em cada requisição
+
+### 3. Impacto da Autenticação por ID + Email
+
+Ao armazenar tanto o ID quanto o email no token e no objeto de autenticação:
+- Melhora a segurança permitindo validar dois parâmetros
+- Evita consultas adicionais ao banco de dados
+- Permite acesso direto ao ID do usuário nos controladores
+
+### 4. Processo de Validação do Token
+
+Em cada requisição:
+1. O filtro JWT extrai o token do cabeçalho
+2. Verifica a assinatura do token usando a chave secreta
+3. Verifica se o token não expirou
+4. Carrega o usuário do banco de dados pelo email
+5. Configura o contexto de segurança com as informações do usuário
+6. O Spring Security verifica as permissões do usuário para o endpoint
+
+## Melhorias Implementadas nesta Versão
+
+1. **Segurança Aprimorada**: 
+   - Uso do `AuthenticationManager` do Spring Security para validação de credenciais
+   - Implementação apropriada de `UserDetailsService`
+   - Senha armazenada com BCrypt
+
+2. **Melhor Estrutura de Código**:
+   - Uso de `@Configuration` e `@EnableWebSecurity`
+   - Beans apropriados para autenticação
+   - Código mais legível e modular
+
+3. **Melhoria na Geração/Validação de Tokens**:
+   - Uso da nova API do jjwt (parseBuilder)
+   - Armazenamento seguro da chave usando Keys.hmacShaKeyFor
+   - Validação completa (assinatura + expiração)
+
+4. **Inclusão do ID do Usuário**:
+   - ID e email no token JWT
+   - Classe `CustomUserPrincipal` para armazenar ambos
+   - Endpoint de validação de token que retorna ambas as informações
+
+## Como Usar na Aplicação
+
+### 1. Autenticação de Usuário
+
+Para autenticar um usuário e obter um token:
+```
+POST /auth/login
+{
+  "email": "usuario@exemplo.com",
+  "senha": "senha123"
+}
+```
+
+Resposta:
+```
+{
+  "token": "eyJhbGciOiJIUzUxMiJ9.eyJ1c2VySWQiOjEsIm5vbWUiOiJVc3XDoXJpbyBUZXN0ZSIsImVtYWlsIjoidXN1YXJpb0BleGVtcGxvLmNvbSIsInN1YiI6InVzdWFyaW9AZXhlbXBsby5jb20iLCJpYXQiOjE2OTk3OTY0MDAsImV4cCI6MTcwMjM4ODQwMH0.abcdefghijklmnopqrstuvwxyz"
+}
+```
+
+### 2. Usando o Token em Requisições
+
+Para acessar endpoints protegidos, inclua o token no cabeçalho:
+```
+Authorization: Bearer eyJhbGciOiJIUzUxMiJ9...
+```
+
+### 3. Acessando Informações do Usuário Autenticado em Controladores
+
+```java
+@GetMapping("/perfil")
+public ResponseEntity<Map<String, Object>> getPerfil(Authentication authentication) {
+    CustomUserPrincipal principal = (CustomUserPrincipal) authentication.getPrincipal();
+    String email = principal.getEmail();
+    Long userId = principal.getUserId();
+    
+    // Usar o email e ID para obter dados do usuário
+    return ResponseEntity.ok(Map.of("userId", userId, "email", email));
+}
+```
+
+## Considerações de Segurança
+
+1. **Proteção de Tokens**: Armazene tokens com segurança no cliente (HttpOnly cookies quando possível)
+2. **Expiração**: Configure um tempo de expiração adequado para os tokens
+3. **Segredo JWT**: Use um segredo forte e mantenha-o fora do controle de versão
+4. **HTTPS**: Use sempre HTTPS em produção para proteger os tokens em trânsito
+5. **Revogação**: Considere implementar um mecanismo de revogação de tokens para casos de comprometimento
+
+Uma implementação correta de JWT com Spring Security oferece uma solução de autenticação robusta, escalável e adequada para aplicações modernas baseadas em API REST.
+
+## Implementações Avançadas de Segurança
+
+### 1. Refresh Tokens
+
+#### O que são Refresh Tokens?
+Refresh tokens são tokens de longa duração que permitem obter novos access tokens (tokens de acesso) quando estes expiram, sem exigir que o usuário faça login novamente. Geralmente, os access tokens têm vida curta (minutos ou horas), enquanto os refresh tokens têm vida mais longa (dias ou semanas).
+
+#### Por que usar Refresh Tokens?
+- **Segurança aprimorada**: Access tokens de curta duração minimizam o risco de uso indevido caso sejam comprometidos.
+- **Melhor experiência do usuário**: Usuários não precisam fazer login frequentemente.
+- **Controle de sessão**: Permite revogar sessões específicas sem afetar as demais.
+
+#### Como implementar Refresh Tokens:
+
+1. **Modificar o modelo de dados**:
+```java
+@Entity
+public class RefreshToken {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+    
+    private String token;
+    
+    @OneToOne
+    private Usuario usuario;
+    
+    private Date expiryDate;
+    
+    // Getters e Setters
+}
+```
+
+2. **Criar um repositório para os Refresh Tokens**:
+```java
+@Repository
+public interface RefreshTokenRepository extends JpaRepository<RefreshToken, Long> {
+    Optional<RefreshToken> findByToken(String token);
+    void deleteByUsuario(Usuario usuario);
+}
+```
+
+3. **Criar um serviço para gerenciar os Refresh Tokens**:
+```java
+@Service
+public class RefreshTokenService {
+    @Value("${jwt.refresh.expiration}")
+    private Long refreshExpiration; // Exemplo: 7 dias em milissegundos
+    
+    private final RefreshTokenRepository refreshTokenRepository;
+    private final UsuarioRepository usuarioRepository;
+    
+    // Criar um novo refresh token
+    public RefreshToken createRefreshToken(Long userId) {
+        Usuario usuario = usuarioRepository.findById(userId)
+            .orElseThrow(() -> new RuntimeException("Usuário não encontrado"));
+            
+        // Primeiro remove tokens existentes
+        refreshTokenRepository.deleteByUsuario(usuario);
+        
+        RefreshToken refreshToken = new RefreshToken();
+        refreshToken.setUsuario(usuario);
+        refreshToken.setToken(UUID.randomUUID().toString());
+        refreshToken.setExpiryDate(new Date(System.currentTimeMillis() + refreshExpiration));
+        
+        return refreshTokenRepository.save(refreshToken);
+    }
+    
+    // Verificar se um refresh token é válido
+    public RefreshToken verifyExpiration(RefreshToken token) {
+        if (token.getExpiryDate().before(new Date())) {
+            refreshTokenRepository.delete(token);
+            throw new RuntimeException("Refresh token expirado. Faça login novamente.");
+        }
+        
+        return token;
+    }
+}
+```
+
+4. **Modificar a resposta de autenticação para incluir o refresh token**:
+```java
+public class AuthResponse {
+    private String accessToken;
+    private String refreshToken;
+    
+    // Getters e Setters
+}
+```
+
+5. **Adicionar endpoint para renovar o access token**:
+```java
+@PostMapping("/refresh-token")
+public ResponseEntity<AuthResponse> refreshToken(@RequestBody RefreshTokenRequest request) {
+    String requestRefreshToken = request.getRefreshToken();
+    
+    return refreshTokenRepository.findByToken(requestRefreshToken)
+        .map(refreshTokenService::verifyExpiration)
+        .map(RefreshToken::getUsuario)
+        .map(usuario -> {
+            String newAccessToken = jwtUtil.generateToken(usuario);
+            
+            return ResponseEntity.ok(new AuthResponse(
+                newAccessToken, 
+                requestRefreshToken
+            ));
+        })
+        .orElseThrow(() -> new RuntimeException("Refresh token não encontrado"));
+}
+```
+
+#### Fluxo completo com Refresh Tokens:
+
+1. Usuário faz login e recebe um access token (curta duração) e um refresh token (longa duração).
+2. Enquanto o access token é válido, o usuário acessa recursos normalmente.
+3. Quando o access token expira, o frontend detecta o erro 401 (Unauthorized).
+4. O frontend envia o refresh token para o endpoint `/auth/refresh-token`.
+5. O servidor valida o refresh token e, se válido, emite um novo access token.
+6. O usuário continua usando a aplicação sem fazer login novamente.
+
+### 2. Logout com Blacklist de Tokens
+
+#### O que é uma Blacklist de Tokens?
+Uma blacklist (lista negra) de tokens é um mecanismo para invalidar tokens JWT antes do seu tempo de expiração natural. Como os tokens JWT são stateless (sem estado), uma vez emitidos, eles permanecerão válidos até expirar, a menos que sejam especificamente invalidados em uma blacklist.
+
+#### Por que implementar Blacklist de Tokens?
+- **Logout efetivo**: Permite invalidar tokens quando o usuário faz logout.
+- **Segurança aprimorada**: Possibilita revogar tokens em caso de comprometimento.
+- **Controle administrativo**: Administradores podem forçar o logout de usuários quando necessário.
+
+#### Como implementar uma Blacklist de Tokens:
+
+1. **Criar modelo para armazenar tokens invalidados**:
+```java
+@Entity
+public class BlacklistedToken {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+    
+    @Column(unique = true)
+    private String token;
+    
+    private Date expiryDate;
+    
+    // Getters e Setters
+}
+```
+
+2. **Criar repositório para a Blacklist**:
+```java
+@Repository
+public interface BlacklistedTokenRepository extends JpaRepository<BlacklistedToken, Long> {
+    boolean existsByToken(String token);
+    
+    // Remove tokens expirados da blacklist
+    @Modifying
+    @Query("DELETE FROM BlacklistedToken t WHERE t.expiryDate < ?1")
+    void deleteExpiredTokens(Date now);
+}
+```
+
+3. **Criar serviço para gerenciar a Blacklist**:
+```java
+@Service
+public class BlacklistService {
+    private final BlacklistedTokenRepository tokenRepository;
+    private final JwtUtil jwtUtil;
+    
+    @Scheduled(fixedRate = 86400000) // Executa diariamente
+    public void purgeExpiredTokens() {
+        tokenRepository.deleteExpiredTokens(new Date());
+    }
+    
+    public void blacklistToken(String token) {
+        // Extrai a data de expiração do token
+        Date expiryDate = jwtUtil.extractExpiration(token);
+        
+        BlacklistedToken blacklistedToken = new BlacklistedToken();
+        blacklistedToken.setToken(token);
+        blacklistedToken.setExpiryDate(expiryDate);
+        
+        tokenRepository.save(blacklistedToken);
+    }
+    
+    public boolean isTokenBlacklisted(String token) {
+        return tokenRepository.existsByToken(token);
+    }
+}
+```
+
+4. **Modificar o JwtAuthFilter para verificar tokens na blacklist**:
+```java
+@Override
+protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response,
+                               FilterChain filterChain) throws ServletException, IOException {
+    final String authHeader = request.getHeader("Authorization");
+
+    if (authHeader == null || !authHeader.startsWith("Bearer ")) {
+        filterChain.doFilter(request, response);
+        return;
+    }
+    
+    final String token = authHeader.substring(7);
+    
+    // Verifica se o token está na blacklist
+    if (blacklistService.isTokenBlacklisted(token)) {
+        response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+        return;
+    }
+    
+    // ... o restante do código existente
+}
+```
+
+5. **Adicionar endpoint de logout**:
+```java
+@PostMapping("/logout")
+public ResponseEntity<Map<String, Boolean>> logout(@RequestHeader("Authorization") String authHeader) {
+    if (authHeader != null && authHeader.startsWith("Bearer ")) {
+        String token = authHeader.substring(7);
+        blacklistService.blacklistToken(token);
+        
+        // Se estiver usando refresh tokens, também os invalidar
+        String email = jwtUtil.extractEmail(token);
+        Usuario usuario = userDetailsService.findUsuarioByEmail(email);
+        refreshTokenRepository.deleteByUsuario(usuario);
+        
+        return ResponseEntity.ok(Map.of("success", true));
+    }
+    
+    return ResponseEntity.badRequest().body(Map.of("success", false));
+}
+```
+
+#### Considerações sobre a Blacklist:
+
+1. **Escalabilidade**: Em sistemas com alto volume de usuários, a blacklist pode crescer rapidamente. Considere usar um banco de dados em memória como Redis para melhor performance.
+
+2. **Purga periódica**: Tokens expirados podem ser removidos da blacklist para economizar espaço.
+
+3. **Alternativa ao banco de dados**: Em vez de armazenar o token inteiro, pode-se armazenar apenas um hash dos tokens ou seu identificador único (JTI - JWT ID).
+
+4. **Abordagem híbrida**: Para sistemas muito grandes, considere uma abordagem híbrida onde apenas tokens suspeitos ou de usuários sensíveis são colocados na blacklist. 
+
+### 3. Suporte a Sessões Múltiplas
+
+#### O que são Sessões Múltiplas?
+Sessões múltiplas permitem que um mesmo usuário esteja logado em vários dispositivos ou navegadores simultaneamente, cada um com seu próprio token. Isso é comum em aplicações modernas onde os usuários acessam de diferentes dispositivos (celular, tablet, computador).
+
+#### Por que implementar Sessões Múltiplas?
+- **Experiência do usuário**: Permite acesso de múltiplos dispositivos sem logout forçado.
+- **Flexibilidade**: Usuários podem alternar entre dispositivos sem reautenticação.
+- **Controle granular**: Possibilita gerenciar e revogar sessões específicas.
+
+#### Como implementar Sessões Múltiplas:
+
+1. **Modificar o modelo de dados para armazenar sessões**:
+```java
+@Entity
+public class UserSession {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+    
+    @ManyToOne
+    private Usuario usuario;
+    
+    private String deviceInfo;
+    private String ipAddress;
+    private Date lastAccess;
+    private String refreshToken;
+    private boolean active;
+    
+    // Getters e Setters
+}
+```
+
+2. **Criar repositório para gerenciar as sessões**:
+```java
+@Repository
+public interface SessionRepository extends JpaRepository<UserSession, Long> {
+    List<UserSession> findByUsuarioAndActive(Usuario usuario, boolean active);
+    Optional<UserSession> findByRefreshToken(String refreshToken);
+}
+```
+
+3. **Modificar o processo de login para registrar sessões**:
+```java
+@PostMapping("/login")
+public ResponseEntity<AuthResponse> login(@Valid @RequestBody AuthRequest request,
+                                        HttpServletRequest httpRequest) {
+    // Autenticação normal...
+    // Após autenticação bem-sucedida:
+    
+    // Criar/Atualizar sessão
+    UserSession session = new UserSession();
+    session.setUsuario(usuario);
+    session.setDeviceInfo(httpRequest.getHeader("User-Agent"));
+    session.setIpAddress(getClientIp(httpRequest));
+    session.setLastAccess(new Date());
+    session.setActive(true);
+    
+    // Gerar refresh token e associar à sessão
+    RefreshToken refreshToken = refreshTokenService.createRefreshToken(usuario.getId());
+    session.setRefreshToken(refreshToken.getToken());
+    
+    sessionRepository.save(session);
+    
+    // Retornar tokens na resposta
+    String accessToken = jwtUtil.generateToken(usuario);
+    return ResponseEntity.ok(new AuthResponse(accessToken, refreshToken.getToken()));
+}
+```
+
+4. **Adicionar endpoints para gerenciar sessões**:
+```java
+@GetMapping("/sessions")
+public ResponseEntity<List<SessionDTO>> getUserSessions(Authentication authentication) {
+    CustomUserPrincipal principal = (CustomUserPrincipal) authentication.getPrincipal();
+    Long userId = principal.getUserId();
+    
+    Usuario usuario = usuarioRepository.findById(userId)
+        .orElseThrow(() -> new RuntimeException("Usuário não encontrado"));
+    
+    List<UserSession> sessions = sessionRepository.findByUsuarioAndActive(usuario, true);
+    List<SessionDTO> sessionDTOs = sessions.stream()
+        .map(this::convertToDTO)
+        .collect(Collectors.toList());
+    
+    return ResponseEntity.ok(sessionDTOs);
+}
+
+@DeleteMapping("/sessions/{sessionId}")
+public ResponseEntity<Map<String, Boolean>> terminateSession(@PathVariable Long sessionId, 
+                                                          Authentication authentication) {
+    CustomUserPrincipal principal = (CustomUserPrincipal) authentication.getPrincipal();
+    Long userId = principal.getUserId();
+    
+    // Verificar se a sessão pertence ao usuário logado
+    UserSession session = sessionRepository.findById(sessionId)
+        .orElseThrow(() -> new RuntimeException("Sessão não encontrada"));
+    
+    if (!session.getUsuario().getId().equals(userId)) {
+        return ResponseEntity.status(HttpStatus.FORBIDDEN)
+            .body(Map.of("success", false, "message", "Acesso negado"));
+    }
+    
+    // Invalidar a sessão
+    session.setActive(false);
+    sessionRepository.save(session);
+    
+    // Colocar o refresh token na blacklist
+    RefreshToken refreshToken = refreshTokenRepository.findByToken(session.getRefreshToken())
+        .orElse(null);
+    
+    if (refreshToken != null) {
+        refreshTokenRepository.delete(refreshToken);
+    }
+    
+    return ResponseEntity.ok(Map.of("success", true));
+}
+```
+
+### 4. Outras Melhorias de Segurança e Robustez
+
+#### 4.1 Rotação de JWT Secret
+
+**O que é**: Mudança periódica da chave secreta usada para assinar os JWTs.
+
+**Implementação**:
+```java
+@Component
+public class KeyRotationManager {
+    @Value("${jwt.secret.rotation.period}")
+    private long rotationPeriod; // Em milissegundos
+    
+    private Key currentKey;
+    private Date currentKeyCreationDate;
+    
+    @PostConstruct
+    public void init() {
+        rotateKey();
+    }
+    
+    @Scheduled(fixedRateString = "${jwt.secret.rotation.check}")
+    public void checkAndRotateKey() {
+        long keyAge = System.currentTimeMillis() - currentKeyCreationDate.getTime();
+        if (keyAge > rotationPeriod) {
+            rotateKey();
+        }
+    }
+    
+    private synchronized void rotateKey() {
+        // Gerar uma nova chave
+        currentKey = Keys.secretKeyFor(SignatureAlgorithm.HS512);
+        currentKeyCreationDate = new Date();
+    }
+    
+    public Key getCurrentKey() {
+        return currentKey;
+    }
+}
+```
+
+#### 4.2 Claims Customizados e Validações Adicionais
+
+**O que são**: Informações adicionais armazenadas no JWT para validações específicas.
+
+**Exemplos**:
+- **IP Fingerprinting**: Armazena informações do IP no token e valida se o mesmo IP está acessando.
+- **Permissões Dinâmicas**: Armazena permissões no token, permitindo validação sem consulta ao banco.
+- **Escopo do Token**: Define para quais APIs/recursos o token é válido.
+
+```java
+// Ao gerar o token
+claims.put("ipAddress", ipAddress);
+claims.put("permissions", user.getPermissions());
+claims.put("scope", "api:read api:write");
+
+// Ao validar
+String tokenIp = jwtUtil.extractClaim(token, claims -> claims.get("ipAddress", String.class));
+String currentIp = getClientIp(request);
+if (!tokenIp.equals(currentIp)) {
+    throw new SecurityException("IP mismatch");
+}
+```
+
+#### 4.3 Rate Limiting e Proteção contra Ataques
+
+**O que é**: Limita o número de requisições que um cliente pode fazer em um determinado período.
+
+**Implementação com Bucket4j**:
+```java
+@Component
+public class RateLimitFilter extends OncePerRequestFilter {
+    private final LoadingCache<String, Bucket> buckets;
+    
+    public RateLimitFilter() {
+        buckets = CacheBuilder.newBuilder()
+            .expireAfterWrite(1, TimeUnit.HOURS)
+            .build(new CacheLoader<String, Bucket>() {
+                @Override
+                public Bucket load(String key) {
+                    return Bucket.builder()
+                        .addLimit(Bandwidth.classic(100, Refill.intervally(100, Duration.ofHours(1))))
+                        .build();
+                }
+            });
+    }
+    
+    @Override
+    protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response,
+                                  FilterChain filterChain) throws ServletException, IOException {
+        String ip = getClientIp(request);
+        Bucket bucket = buckets.getUnchecked(ip);
+        
+        if (bucket.tryConsume(1)) {
+            filterChain.doFilter(request, response);
+        } else {
+            response.setStatus(HttpStatus.TOO_MANY_REQUESTS.value());
+            response.getWriter().write("Rate limit exceeded");
+        }
+    }
+}
+```
+
+#### 4.4 Monitoramento e Auditoria
+
+**O que é**: Registro das atividades de autenticação e autorização para fins de segurança e debugging.
+
+**Implementação**:
+```java
+@Service
+@Slf4j
+public class SecurityAuditService {
+    private final AuthEventRepository authEventRepository;
+    
+    public void logLoginSuccess(String username, String ip, String userAgent) {
+        log.info("Login successful: user={}, ip={}, agent={}", username, ip, userAgent);
+        saveEvent("LOGIN_SUCCESS", username, ip, userAgent);
+    }
+    
+    public void logLoginFailure(String username, String ip, String userAgent, String reason) {
+        log.warn("Login failed: user={}, ip={}, agent={}, reason={}", username, ip, userAgent, reason);
+        saveEvent("LOGIN_FAILURE", username, ip, userAgent);
+    }
+    
+    public void logAccessDenied(String username, String resource, String ip) {
+        log.warn("Access denied: user={}, resource={}, ip={}", username, resource, ip);
+        saveEvent("ACCESS_DENIED", username, ip, resource);
+    }
+    
+    private void saveEvent(String type, String username, String ip, String details) {
+        AuthEvent event = new AuthEvent();
+        event.setType(type);
+        event.setUsername(username);
+        event.setIpAddress(ip);
+        event.setDetails(details);
+        event.setTimestamp(new Date());
+        
+        authEventRepository.save(event);
+    }
+}
+```
+
+## Conclusão e Melhores Práticas
+
+Implementar recursos avançados como refresh tokens, blacklist de tokens e sessões múltiplas requer cuidado adicional, mas traz benefícios significativos em segurança e experiência do usuário. Algumas recomendações finais:
+
+1. **Segurança em camadas**: Não dependa apenas do JWT. Implemente múltiplas camadas de segurança.
+
+2. **Performance**: Monitore o impacto de blacklists e outras features stateful na performance do sistema.
+
+3. **Testes de segurança**: Realize testes de penetração e avaliações de segurança regularmente.
+
+4. **Documentação**: Mantenha documentação detalhada sobre o fluxo de autenticação para desenvolvedores.
+
+5. **Refresh Tokens seguros**: Armazene refresh tokens de forma segura e revogue-os ao menor sinal de comprometimento.
+
+6. **Princípio do menor privilégio**: Tokens devem conter apenas as permissões mínimas necessárias.
+
+7. **Segurança de configuração**: Proteja suas chaves secretas e configurações sensíveis usando cofres de segredos ou variáveis de ambiente.
+
+Ao implementar essas funcionalidades avançadas, você estará construindo um sistema de autenticação robusto, flexível e seguro para sua aplicação Spring Boot. 
