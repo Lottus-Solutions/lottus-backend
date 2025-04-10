@@ -2,6 +2,7 @@ package br.com.lottus.edu.library.controller;
 
 import br.com.lottus.edu.library.dto.LivroRequestDTO;
 import br.com.lottus.edu.library.dto.LivroResponseDTO;
+import br.com.lottus.edu.library.model.Categoria;
 import br.com.lottus.edu.library.repository.CategoriaRepository;
 import br.com.lottus.edu.library.service.LivroService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -45,6 +46,12 @@ public class LivroController {
     @GetMapping("/buscar/{nome}")
     public ResponseEntity<List<LivroResponseDTO>> buscarLivroPorNome(@PathVariable String nome) {
         List<LivroResponseDTO> livros = livroService.buscarLivroPorNome(nome);
+        return ResponseEntity.ok(livros);
+    }
+
+    @GetMapping("/filtrar-por-categoria")
+    public ResponseEntity<List<LivroResponseDTO>> filtrarLivroPorCategoria(@RequestParam Categoria categoria) {
+        List<LivroResponseDTO> livros = livroService.filtrarPorCategoria(categoria);
         return ResponseEntity.ok(livros);
     }
 }

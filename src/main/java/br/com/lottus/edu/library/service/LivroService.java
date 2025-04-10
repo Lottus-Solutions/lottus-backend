@@ -96,4 +96,16 @@ public class LivroService {
                 .toList();
     }
 
+    public List<LivroResponseDTO> filtrarPorCategoria(Categoria categoria) {
+        return livroRepository.findByCategoria(categoria).stream()
+                .map(livro -> new LivroResponseDTO(
+                        livro.getId(),
+                        livro.getNome(),
+                        livro.getAutor(),
+                        livro.getQuantidade(),
+                        livro.getStatus(),
+                        livro.getCategoria().getNome()))
+                .toList();
+    }
+
 }
