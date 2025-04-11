@@ -58,4 +58,16 @@ public class Aluno {
     public void setTurma(Turma turma) {
         this.turma = turma;
     }
+
+    @Override
+    public String toString() {
+        return "Aluno{" +
+                "matricula='" + matricula + '\'' +
+                ", nome='" + nome + '\'' +
+                ", qtdBonus=" + qtdBonus +
+                ", qtdLivrosLidos=" + qtdLivrosLidos +
+                ", turma=" + turma +
+                '}';
+    }
 }
+

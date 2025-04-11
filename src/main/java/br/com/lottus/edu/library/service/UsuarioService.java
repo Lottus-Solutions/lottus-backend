@@ -28,4 +28,12 @@ public interface UsuarioService {
      * @return true se o login for bem-sucedido, false caso contrário
      */
     Usuario login(String email, String senha);
+
+
+    /**
+     * Busca um usuário pelo email dele
+     * @param email O email do usuário
+     * @return O usuario encontrado, sem sua senha.
+     * */
+    Usuario buscarPorEmail(String email);
 }
