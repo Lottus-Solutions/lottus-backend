@@ -1,5 +1,6 @@
 package br.com.lottus.edu.library.service;
 
+import br.com.lottus.edu.library.dto.RequestEmprestimo;
 import br.com.lottus.edu.library.model.Aluno;
 import br.com.lottus.edu.library.model.Emprestimo;
 import br.com.lottus.edu.library.model.Livro;
@@ -28,18 +29,16 @@ public interface EmprestimoService {
     /**
      * Realizar um novo empréstimo de um livro para um aluno.
      *
-     * @param idLivro o ID do livro a ser emprestado.
-     * @param matriculaAluno a matricula do aluno que está pegando o livro emprestado.
-     * @param dtEmprestimo a data do empréstimo.
+     * @param requestEmprestimo objeto de transferencia de dados do emrpestimo.
      * @return true se o empréstimo for realizado com sucesso, false caso contrário.
      */
-    Boolean fazerEmprestimo(Long idLivro, String matriculaAluno, LocalDate dtEmprestimo);
+    Optional<Emprestimo> fazerEmprestimo(RequestEmprestimo requestEmprestimo);
 
     /**
      * Finalizar um empréstimo, indicando que o livro foi devolvido.
      *
      * @param emprestimoId o objeto Emprestimo a ser finalizado.
-     * @return true se a finalização for bem-sucedida, false caso contrário.
+     * @return O emprestimo criado .
      */
     Boolean finalizarEmprestimo(Long emprestimoId);
 
@@ -63,10 +62,10 @@ public interface EmprestimoService {
     /**
      * Buscar o histórico de empréstimos de um aluno específico.
      *
-     * @param alunoId o ID do aluno.
+     * @param matricula a matricula do aluno.
      * @return Lista de empréstimos feitos pelo aluno informado.
      */
-    List<Emprestimo> buscarHistoricoAluno(Long alunoId);
+    List<Emprestimo> buscarHistoricoAluno(String matricula);
 
     List<Emprestimo> filtrarEmprestimosAtrasados();
 }

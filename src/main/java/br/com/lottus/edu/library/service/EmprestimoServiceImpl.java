@@ -1,7 +1,6 @@
 package br.com.lottus.edu.library.service;
 
-import br.com.lottus.edu.library.dto.AlunoDTO;
-import br.com.lottus.edu.library.dto.EmprestimoDTO;
+import br.com.lottus.edu.library.dto.RequestEmprestimo;
 import br.com.lottus.edu.library.model.Aluno;
 import br.com.lottus.edu.library.model.Emprestimo;
 import br.com.lottus.edu.library.model.Livro;
@@ -9,16 +8,18 @@ import br.com.lottus.edu.library.model.StatusEmprestimo;
 import br.com.lottus.edu.library.repository.AlunoRepository;
 import br.com.lottus.edu.library.repository.EmprestimoRepository;
 import br.com.lottus.edu.library.repository.LivroRepository;
+import br.com.lottus.edu.library.utils.LimitedList;
+import lombok.Getter;
+import lombok.Setter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 
+@Service
+@Getter @Setter
 public class EmprestimoServiceImpl implements EmprestimoService{
 
     private Integer qtdDias = 15;
@@ -63,21 +64,23 @@ public class EmprestimoServiceImpl implements EmprestimoService{
 
 
     @Override
-    public Boolean fazerEmprestimo(Long idLivro, String matriculaAluno, LocalDate dtEmprestimo) {
-        Optional<Aluno> aluno = alunoRepository.findByMatricula(matriculaAluno);
-        Optional<Livro> livro = livroRepository.findById(idLivro);
+    public Optional<Emprestimo> fazerEmprestimo(RequestEmprestimo requestEmprestimo) {
+        Optional<Aluno> aluno = alunoRepository.findByMatricula(requestEmprestimo.matriculaAluno());
+        Optional<Livro> livro = livroRepository.findById(requestEmprestimo.fk_livro());
+
+        Emprestimo novoEmprestimo = new Emprestimo();
 
         if(aluno.isPresent() && livro.isPresent()){
-            Emprestimo novoEmprestimo = new Emprestimo();
+
             novoEmprestimo.setAluno(aluno.get());
             novoEmprestimo.setLivro(livro.get());
-            novoEmprestimo.setDataEmprestimo(dtEmprestimo);
-            novoEmprestimo.setDataDevolucaoPrevista(dtEmprestimo.plusDays(qtdDias));
+            novoEmprestimo.setDataEmprestimo(requestEmprestimo.dataEmprestimo());
+            novoEmprestimo.setDataDevolucaoPrevista(requestEmprestimo.dataEmprestimo().plusDays(qtdDias));
             novoEmprestimo.setStatusEmprestimo(StatusEmprestimo.ATIVO);
-            emprestimoRepository.save(novoEmprestimo);
-            return true;
         }
-        return false;
+
+            return Optional.of(emprestimoRepository.save(novoEmprestimo));
+
     }
 
     @Override
@@ -155,17 +158,89 @@ public class EmprestimoServiceImpl implements EmprestimoService{
 
     @Override
     public List<Emprestimo> buscarHistoricoLivro(Long idLivro) {
-        return List.of();
+        Livro livro = livroRepository.findById(idLivro)
+                .orElseThrow(() -> new RuntimeException("Livro não encontrado"));
+
+        List<Emprestimo> listaFinalizados =  emprestimoRepository
+                .findAllByStatusEmprestimo(StatusEmprestimo.FINALIZADO);
+
+        List<Emprestimo> historicoLivro = new LimitedList<Emprestimo>(7);
+
+
+        listaFinalizados.stream()
+                .filter(e -> Objects.equals(e.getLivro().getId(), livro.getId()))
+                .forEach(e ->{
+                    try{
+                        historicoLivro.add(e);
+                    }catch(IllegalStateException ex){
+                        System.out.println("Exceção capturada" + ex.getMessage());
+                    }
+                });
+
+//                if(!listaFinalizados.isEmpty()){
+//
+//                    listaFinalizados.forEach(emprestimo -> {
+//
+//                    Long livroId = emprestimo.getLivro().getId();
+//
+//                    if(Objects.equals(livroId, livro.getId())){
+//
+//                        try{
+//                            historicoLivro.add(emprestimo);
+//                        }catch(IllegalStateException e){
+//                            System.out.println("Exceção capturada: " + e.getMessage());
+//                        }
+//                    }
+//                    });
+//                }
+
+                return historicoLivro;
+
     }
 
     @Override
-    public List<Emprestimo> buscarHistoricoAluno(Long alunoId) {
-        return List.of();
+    public List<Emprestimo> buscarHistoricoAluno(String matricula) {
+        Aluno aluno = alunoRepository.findById(matricula)
+                .orElseThrow(() -> new RuntimeException("Aluno não encontrado"));
+
+        List<Emprestimo> emprestimosFinalizados = emprestimoRepository.findAllByStatusEmprestimo(StatusEmprestimo.FINALIZADO);
+
+        List<Emprestimo> historicoAluno = new LimitedList<Emprestimo>(7);
+
+        emprestimosFinalizados.stream()
+                .filter(emprestimo -> Objects.equals(emprestimo.getAluno().getMatricula(), aluno.getMatricula()))
+                .forEach(emprestimo -> {
+                    try {
+                        historicoAluno.add(emprestimo);
+                    }catch(IllegalStateException ex){
+                        System.out.println("Exceção capturada: " + ex.getMessage());
+                    }
+                });
+
+//        if(!emprestimosFinalizados.isEmpty()){
+//            listarEmprestimos().forEach(emprestimo ->{
+//                String matriculaAluno = emprestimo.getAluno().getMatricula();
+//
+//                if(Objects.equals(matricula, aluno.getMatricula())){
+//
+//                    try {
+//                        historicoAluno.add(emprestimo);
+//                    }catch(IllegalStateException e){
+//                        System.out.println("Exceção capturada:" + e.getMessage());
+//                    }
+//                }
+//            });
+//        }
+
+        return historicoAluno;
     }
 
     @Override
     public List<Emprestimo> filtrarEmprestimosAtrasados() {
-        return List.of();
+        List<Emprestimo> emprestimosAtrasados = emprestimoRepository.findAllByStatusEmprestimo(StatusEmprestimo.ATRASADO);
+        setApenasAtrasados(true);
+
+        return emprestimosAtrasados;
     }
 
 
