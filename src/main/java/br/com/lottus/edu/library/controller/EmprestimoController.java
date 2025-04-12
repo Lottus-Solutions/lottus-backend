@@ -14,14 +14,12 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.bind.ServletRequestBindingException;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import java.net.URI;
 import java.time.LocalDate;
+import java.util.List;
 import java.util.Optional;
 
 @RestController
@@ -73,4 +71,57 @@ public class EmprestimoController {
                     .body(null);
         }
     }
+
+    @GetMapping
+    public ResponseEntity<List<Emprestimo>> listarEmprestimos() {
+        List<Emprestimo> emprestimos = emprestimoService.listarEmprestimos();
+        return ResponseEntity.ok(emprestimos);
+    }
+
+    @PostMapping("/{id}/renovar")
+    public ResponseEntity<Void> renovarEmprestimo(@PathVariable Long id) {
+        Boolean sucesso = emprestimoService.renovarEmprestimo(id);
+        if (sucesso) {
+            return ResponseEntity.noContent().build();
+        } else {
+            return ResponseEntity.notFound().build();
+        }
+    }
+
+    @PostMapping("/{id}/finalizar")
+    public ResponseEntity<Void> finalizarEmprestimo(@PathVariable Long id) {
+        Boolean sucesso = emprestimoService.finalizarEmprestimo(id);
+        if (sucesso) {
+            return ResponseEntity.noContent().build();
+        } else {
+            return ResponseEntity.notFound().build();
+        }
+    }
+
+    @GetMapping("/buscar")
+    public ResponseEntity<List<Emprestimo>> buscarEmprestimos(
+            @RequestParam(required = false) Long livroId,
+            @RequestParam(required = false) String matricula) {
+        List<Emprestimo> emprestimos = emprestimoService.buscarEmprestimos(livroId, matricula);
+        return ResponseEntity.ok(emprestimos);
+    }
+
+    @GetMapping("/historico/livro/{id}")
+    public ResponseEntity<List<Emprestimo>> buscarHistoricoLivro(@PathVariable Long id) {
+        List<Emprestimo> historico = emprestimoService.buscarHistoricoLivro(id);
+        return ResponseEntity.ok(historico);
+    }
+
+    @GetMapping("/historico/aluno/{matricula}")
+    public ResponseEntity<List<Emprestimo>> buscarHistoricoAluno(@PathVariable String matricula) {
+        List<Emprestimo> historico = emprestimoService.buscarHistoricoAluno(matricula);
+        return ResponseEntity.ok(historico);
+    }
+
+    @GetMapping("/atrasados")
+    public ResponseEntity<List<Emprestimo>> filtrarEmprestimosAtrasados() {
+        List<Emprestimo> atrasados = emprestimoService.filtrarEmprestimosAtrasados();
+        return ResponseEntity.ok(atrasados);
+    }
+
 }

@@ -26,12 +26,10 @@ public class SecurityConfig {
 
     private final JwtAuthFilter jwtAuthFilter;
     private final UserDetailsService userDetailsService;
-    private final RequestLoggingFilter requestLoggingFilter;
 
-    public SecurityConfig(JwtAuthFilter jwtAuthFilter, UserDetailsService userDetailsService, RequestLoggingFilter requestLoggingFilter) {
+    public SecurityConfig(JwtAuthFilter jwtAuthFilter, UserDetailsService userDetailsService) {
         this.jwtAuthFilter = jwtAuthFilter;
         this.userDetailsService = userDetailsService;
-        this.requestLoggingFilter = requestLoggingFilter;
     }
 
     @Bean
@@ -40,13 +38,12 @@ public class SecurityConfig {
             .cors(cors -> cors.configurationSource(corsConfigurationSource()))
             .csrf(csrf -> csrf.disable())
             .authorizeHttpRequests(auth -> auth
-                    .requestMatchers("/auth/**", "/swagger-ui/**","/swagger-ui.html", "/v3/api-docs/**").permitAll()
+                    .requestMatchers("/auth/**", "/swagger-ui/**","/swagger-ui.html", "/v3/api-docs/**", "/error", "/error/**").permitAll()
                     .anyRequest().authenticated()
             )
             .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
             .authenticationProvider(authenticationProvider())
-            .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class)
-            .addFilterBefore(requestLoggingFilter, JwtAuthFilter.class);
+            .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
     }
