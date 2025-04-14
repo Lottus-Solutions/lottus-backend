@@ -46,4 +46,15 @@ public class AlunoDTO {
     public void setTurma_id(Long turma_id) {
         this.turma_id = turma_id;
     }
+
+    @Override
+    public String toString() {
+        return "AlunoDTO{" +
+                "matricula='" + matricula + '\'' +
+                ", nome='" + nome + '\'' +
+                ", qtd_bonus=" + qtd_bonus +
+                ", turma_id=" + turma_id +
+                ", qtd_livros_lidos=" + qtd_livros_lidos +
+                '}';
+    }
 }
