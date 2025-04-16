@@ -1,6 +1,9 @@
 package br.com.lottus.edu.library.service;
 
 import br.com.lottus.edu.library.dto.RequestEmprestimo;
+import br.com.lottus.edu.library.exception.AlunoNaoEncontradoException;
+import br.com.lottus.edu.library.exception.EmprestimoNaoEncontradoException;
+import br.com.lottus.edu.library.exception.MultiClassNotFundException;
 import br.com.lottus.edu.library.model.Aluno;
 import br.com.lottus.edu.library.model.Emprestimo;
 import br.com.lottus.edu.library.model.Livro;
@@ -51,7 +54,7 @@ public class EmprestimoServiceImpl implements EmprestimoService{
         Optional<Emprestimo> emprestimoAAtualizar = emprestimoRepository.findById(idEmprestimo);
 
         if(emprestimoAAtualizar.isEmpty()){
-            return false;
+            throw new EmprestimoNaoEncontradoException();
         }else{
             Emprestimo emprestimo = emprestimoAAtualizar.get();
             emprestimo.setDataDevolucaoPrevista(emprestimo.getDataDevolucaoPrevista().plusDays(qtdDias));
@@ -76,6 +79,8 @@ public class EmprestimoServiceImpl implements EmprestimoService{
             novoEmprestimo.setDataEmprestimo(requestEmprestimo.dataEmprestimo());
             novoEmprestimo.setDataDevolucaoPrevista(requestEmprestimo.dataEmprestimo().plusDays(qtdDias));
             novoEmprestimo.setStatusEmprestimo(StatusEmprestimo.ATIVO);
+        }else{
+            throw  new MultiClassNotFundException(aluno, livro);
         }
 
             return Optional.of(emprestimoRepository.save(novoEmprestimo));
@@ -87,7 +92,7 @@ public class EmprestimoServiceImpl implements EmprestimoService{
         Optional<Emprestimo> emprestimoOpt = emprestimoRepository.findById(emprestimoId);
 
         if(emprestimoOpt.isEmpty()){
-            return false;
+            throw  new EmprestimoNaoEncontradoException();
         }
 
         Emprestimo emprestimo = emprestimoOpt.get();
@@ -149,7 +154,6 @@ public class EmprestimoServiceImpl implements EmprestimoService{
 
                 return emprestimoRepository.findByAluno(alunoOpt.get());
             } else {
-
                 return emprestimoRepository.findAll();
             }
         }
@@ -176,23 +180,6 @@ public class EmprestimoServiceImpl implements EmprestimoService{
                     }
                 });
 
-//                if(!listaFinalizados.isEmpty()){
-//
-//                    listaFinalizados.forEach(emprestimo -> {
-//
-//                    Long livroId = emprestimo.getLivro().getId();
-//
-//                    if(Objects.equals(livroId, livro.getId())){
-//
-//                        try{
-//                            historicoLivro.add(emprestimo);
-//                        }catch(IllegalStateException e){
-//                            System.out.println("Exceção capturada: " + e.getMessage());
-//                        }
-//                    }
-//                    });
-//                }
-
                 return historicoLivro;
 
     }
@@ -200,7 +187,7 @@ public class EmprestimoServiceImpl implements EmprestimoService{
     @Override
     public List<Emprestimo> buscarHistoricoAluno(String matricula) {
         Aluno aluno = alunoRepository.findById(matricula)
-                .orElseThrow(() -> new RuntimeException("Aluno não encontrado"));
+                .orElseThrow(AlunoNaoEncontradoException::new);
 
         List<Emprestimo> emprestimosFinalizados = emprestimoRepository.findAllByStatusEmprestimo(StatusEmprestimo.FINALIZADO);
 
@@ -216,31 +203,18 @@ public class EmprestimoServiceImpl implements EmprestimoService{
                     }
                 });
 
-//        if(!emprestimosFinalizados.isEmpty()){
-//            listarEmprestimos().forEach(emprestimo ->{
-//                String matriculaAluno = emprestimo.getAluno().getMatricula();
-//
-//                if(Objects.equals(matricula, aluno.getMatricula())){
-//
-//                    try {
-//                        historicoAluno.add(emprestimo);
-//                    }catch(IllegalStateException e){
-//                        System.out.println("Exceção capturada:" + e.getMessage());
-//                    }
-//                }
-//            });
-//        }
-
         return historicoAluno;
     }
 
     @Override
     public List<Emprestimo> filtrarEmprestimosAtrasados() {
         List<Emprestimo> emprestimosAtrasados = emprestimoRepository.findAllByStatusEmprestimo(StatusEmprestimo.ATRASADO);
-        setApenasAtrasados(true);
+        setApenasAtrasados(!apenasAtrasados);
 
         return emprestimosAtrasados;
     }
+
+
 
 
 }
