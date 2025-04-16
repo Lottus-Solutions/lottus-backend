@@ -1,6 +1,8 @@
 package br.com.lottus.edu.library.service;
 
 import br.com.lottus.edu.library.dto.AlunoDTO;
+import br.com.lottus.edu.library.exception.AlunoNaoEncontradoException;
+import br.com.lottus.edu.library.exception.TurmaNaoEncontradaException;
 import br.com.lottus.edu.library.model.Aluno;
 import br.com.lottus.edu.library.model.Turma;
 import br.com.lottus.edu.library.repository.AlunoRepository;
@@ -41,9 +43,7 @@ public class AlunoServiceImpl implements AlunoService{
     public Boolean editarAluno(String matricula, AlunoDTO alunodto) {
         // Busca o aluno existente pelo ID
         Aluno alunoExistente = alunoRepository.findByMatricula(matricula)
-                .orElseThrow(() -> new RuntimeException("Aluno não encontrado"));
-
-        System.out.println("Aluno:" + alunodto.getNome() + alunodto.getQtd_livros_lidos());
+                .orElseThrow(AlunoNaoEncontradoException::new);
 
         // Atualiza os dados do aluno
         if(alunodto.getNome() != null){
@@ -62,7 +62,7 @@ public class AlunoServiceImpl implements AlunoService{
         // Se a turma for modificada, verificamos a existência da nova turma
         if (alunodto.getTurma_id() != null) {
             Turma turma = turmaRepository.findById(alunodto.getTurma_id())
-                    .orElseThrow(() -> new RuntimeException("Turma não encontrada"));
+                    .orElseThrow(TurmaNaoEncontradaException::new);
             alunoExistente.setTurma(turma);
         }
 

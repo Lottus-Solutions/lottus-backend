@@ -18,4 +18,13 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
     }
 
+    @ExceptionHandler(EmprestimoNaoEncontradoException.class)
+    public ResponseEntity<String> handleEmprestimoNaoEncontrado(EmprestimoNaoEncontradoException e){
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
+    }
+
+    @ExceptionHandler(MultiClassNotFundException.class)
+    public ResponseEntity<String> handleMultiClassNaoEncontada(MultiClassNotFundException e){
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
+    }
 }
