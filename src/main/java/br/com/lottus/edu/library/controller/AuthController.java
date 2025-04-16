@@ -37,7 +37,7 @@ public class AuthController {
 
     @Operation(summary = "Registra um novo usuário")
     @PostMapping("/register")
-    public ResponseEntity<Usuario> registrarUsuario(@Valid @RequestBody Usuario usuario) {
+    public ResponseEntity<Usuario> registrarUsuario(@RequestBody Usuario usuario) {
         // Encodar a senha antes de salvar
         usuario.setSenha(passwordEncoder.encode(usuario.getSenha()));
         Usuario novoUsuario = usuarioService.cadastrarUsuario(usuario);
@@ -46,7 +46,7 @@ public class AuthController {
 
     @Operation(summary = "Realiza login e retorna um token JWT")
     @PostMapping("/login")
-    public ResponseEntity<AuthResponse> login(@Valid @RequestBody AuthRequest request) {
+    public ResponseEntity<AuthResponse> login(@RequestBody AuthRequest request) {
         try {
             // Autentica o usuário pelo email e senha
             Authentication authentication = authenticationManager.authenticate(

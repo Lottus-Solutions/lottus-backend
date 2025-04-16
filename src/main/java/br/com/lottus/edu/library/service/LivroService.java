@@ -4,6 +4,7 @@ import br.com.lottus.edu.library.dto.LivroRequestDTO;
 import br.com.lottus.edu.library.dto.LivroResponseDTO;
 import br.com.lottus.edu.library.exception.CategoriaNaoEncontradaException;
 import br.com.lottus.edu.library.exception.LivroNaoEncontradoException;
+import br.com.lottus.edu.library.exception.NenhumLivroEncontradoException;
 import br.com.lottus.edu.library.model.Categoria;
 import br.com.lottus.edu.library.model.Livro;
 import br.com.lottus.edu.library.repository.CategoriaRepository;
@@ -85,7 +86,8 @@ public class LivroService {
     }
 
     public List<LivroResponseDTO> buscarLivroPorNome(String nome) {
-        return livroRepository.findByNomeContaining(nome).stream()
+        List<LivroResponseDTO> livrosEncontrados = livroRepository.findByNomeContaining(nome)
+                .stream()
                 .map(livro -> new LivroResponseDTO(
                 livro.getId(),
                 livro.getNome(),
@@ -94,6 +96,12 @@ public class LivroService {
                 livro.getStatus(),
                 livro.getCategoria().getNome()))
                 .toList();
+
+        if (livrosEncontrados.isEmpty()) {
+            throw new NenhumLivroEncontradoException();
+        }
+
+        return livrosEncontrados;
     }
 
     public List<LivroResponseDTO> filtrarPorCategoria(Categoria categoria) {
