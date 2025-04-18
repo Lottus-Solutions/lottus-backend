@@ -1,6 +1,7 @@
 package br.com.lottus.edu.library.service;
 
 import br.com.lottus.edu.library.dto.AlunoDTO;
+import br.com.lottus.edu.library.exception.NenhumAlunoEncotradoException;
 import br.com.lottus.edu.library.exception.AlunoNaoEncontradoException;
 import br.com.lottus.edu.library.exception.TurmaNaoEncontradaException;
 import br.com.lottus.edu.library.model.Aluno;
@@ -83,6 +84,16 @@ public class AlunoServiceImpl implements AlunoService{
         return alunoRepository.findByMatricula(matricula);
     }
 
+    @Override
+    public List<Aluno> listarAlunos() {
+        List<Aluno> alunos = alunoRepository.findAll();
+
+        if (alunos.isEmpty()) {
+            throw new NenhumAlunoEncotradoException();
+        }
+
+        return alunos;
+    }
 
 
 }
