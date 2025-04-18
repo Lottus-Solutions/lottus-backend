@@ -35,5 +35,4 @@ public class CategoriaController {
         categoriaService.removerCategoria(id);
         return ResponseEntity.status(HttpStatus.OK).body("Categoria removida com sucesso!");
     }
-
 }

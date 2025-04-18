@@ -104,8 +104,8 @@ public class LivroService {
         return livrosEncontrados;
     }
 
-    public List<LivroResponseDTO> filtrarPorCategoria(Categoria categoria) {
-        return livroRepository.findByCategoria(categoria).stream()
+    public List<LivroResponseDTO> filtrarPorCategoria(List<Long> categoriaIds) {
+        List<LivroResponseDTO> livros = livroRepository.findByCategoriaIdIn(categoriaIds).stream()
                 .map(livro -> new LivroResponseDTO(
                         livro.getId(),
                         livro.getNome(),
@@ -114,6 +114,13 @@ public class LivroService {
                         livro.getStatus(),
                         livro.getCategoria().getNome()))
                 .toList();
+
+        if (livros.isEmpty()) {
+            throw new NenhumLivroEncontradoException();
+        }
+
+        return livros;
+
     }
 
 }
