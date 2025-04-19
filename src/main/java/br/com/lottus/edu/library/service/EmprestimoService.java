@@ -49,7 +49,7 @@ public interface EmprestimoService {
      * @param matricula a matricula do aluno a ser buscado.
      * @return Lista de empréstimos correspondentes ao critério de busca.
      */
-    List<Emprestimo> buscarEmprestimos(Long livroId, String matricula);
+    List<Emprestimo> buscarEmprestimos(Long livroId, String matricula, Boolean apenasAtrasados);
 
     /**
      * Buscar o histórico de empréstimos de um livro específico.
