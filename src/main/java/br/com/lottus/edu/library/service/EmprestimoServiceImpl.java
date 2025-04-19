@@ -110,6 +110,14 @@ public class EmprestimoServiceImpl implements EmprestimoService{
         Optional<Livro> livroOpt = livroId != null ? livroRepository.findById(livroId) : Optional.empty();
         Optional<Aluno> alunoOpt = matricula != null ? alunoRepository.findByMatricula(matricula) : Optional.empty();
 
+        if(livroId != null && livroOpt.isEmpty()){
+            return Collections.emptyList();
+        }
+
+        if(matricula != null && alunoOpt.isEmpty()){
+            return Collections.emptyList();
+        }
+
         List<Emprestimo> todosEmprestimos = emprestimoRepository.findAll();
 
         boolean filterAtrasados = apenasAtrasados != null && apenasAtrasados;
