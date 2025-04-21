@@ -8,6 +8,6 @@ import java.util.List;
 import java.util.Optional;
 
 public interface LivroRepository extends JpaRepository<Livro, Long> {
-    Optional<Livro> findByNomeContaining(String nome);
+    List<Livro> findByNomeContaining(String nome);
     List<Livro> findByCategoriaIdIn(List<Long> categoriaIds);
 }
