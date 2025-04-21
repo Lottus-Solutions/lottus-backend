@@ -6,12 +6,14 @@ import br.com.lottus.edu.library.repository.AlunoRepository;
 import br.com.lottus.edu.library.service.AlunoService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import org.apache.catalina.connector.Response;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
 import java.util.Optional;
 
 
@@ -97,6 +99,13 @@ public class AlunoController {
     @GetMapping("/turma/{turmaId}")
     public ResponseEntity<Iterable<Aluno>> buscarPorTurma(@PathVariable Long turmaId){
         return ResponseEntity.ok(alunoService.listarAlunosPorTurma(turmaId));
+    }
+
+    @Operation(summary = "Lista todos os alunos")
+    @GetMapping
+    public ResponseEntity<List<Aluno>> listar() {
+        List<Aluno> alunos = alunoService.listarAlunos();
+        return ResponseEntity.ok(alunos);
     }
 
 }
