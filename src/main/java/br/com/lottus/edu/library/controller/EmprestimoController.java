@@ -2,12 +2,16 @@ package br.com.lottus.edu.library.controller;
 
 
 import br.com.lottus.edu.library.dto.RequestEmprestimo;
+import br.com.lottus.edu.library.exception.AlunoComEmprestimoException;
 import br.com.lottus.edu.library.model.Emprestimo;
+import br.com.lottus.edu.library.repository.AlunoRepository;
+import br.com.lottus.edu.library.repository.EmprestimoRepository;
 import br.com.lottus.edu.library.security.CustomUserPrincipal;
 import br.com.lottus.edu.library.service.EmprestimoService;
 import br.com.lottus.edu.library.service.EmprestimoServiceImpl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
@@ -27,35 +31,31 @@ import java.util.Optional;
 public class EmprestimoController {
 
     private final EmprestimoService emprestimoService;
+    private final EmprestimoRepository emprestimoRepository;
+
+    @Autowired
+    private AlunoRepository alunoRepository;
+
     private static final Logger logger = LoggerFactory.getLogger(EmprestimoController.class);
 
-    public EmprestimoController(EmprestimoService emprestimoService) {
+    public EmprestimoController(EmprestimoService emprestimoService, EmprestimoRepository emprestimoRepository) {
         this.emprestimoService = emprestimoService;
+        this.emprestimoRepository = emprestimoRepository;
     }
 
     @PostMapping
-    public ResponseEntity<Emprestimo> fazerEmprestimo(@RequestBody RequestEmprestimo requestEmprestimo){
-        logger.info("=== INÍCIO DO PROCESSAMENTO DE EMPRÉSTIMO ===");
-        logger.info("Dados da requisição: {}", requestEmprestimo);
-        
-        // Verificar autenticação
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        if (authentication != null && authentication.isAuthenticated()) {
-            logger.info("Usuário autenticado: {}", authentication.getName());
-            
-            if (authentication.getPrincipal() instanceof CustomUserPrincipal) {
-                CustomUserPrincipal userPrincipal = (CustomUserPrincipal) authentication.getPrincipal();
-                logger.info("ID do usuário: {}, Email: {}", userPrincipal.getUserId(), userPrincipal.getEmail());
-            } else {
-                logger.warn("Principal não é do tipo CustomUserPrincipal: {}", authentication.getPrincipal().getClass().getName());
-            }
-        } else {
-            logger.error("Usuário não está autenticado!");
-        }
+    public ResponseEntity<Emprestimo> fazerEmprestimo(@RequestBody RequestEmprestimo requestEmprestimo) {
+
+       Optional<Emprestimo> emprestimoOpt = alunoRepository.findByMatricula(requestEmprestimo.matriculaAluno())
+               .flatMap(emprestimoRepository::findByAluno);
+
+       if(emprestimoOpt.isPresent()){
+           throw new AlunoComEmprestimoException();
+       }
 
         Optional<Emprestimo> emprestimo = emprestimoService.fazerEmprestimo(requestEmprestimo);
 
-        if(emprestimo.isPresent()){
+        if (emprestimo.isPresent()) {
             Emprestimo emprestimoOfc = emprestimo.get();
             URI location = ServletUriComponentsBuilder
                     .fromCurrentRequest()
@@ -63,14 +63,12 @@ public class EmprestimoController {
                     .buildAndExpand(emprestimoOfc.getId())
                     .toUri();
 
-            logger.info("Empréstimo realizado com sucesso. ID: {}", emprestimoOfc.getId());
             return ResponseEntity.created(location).body(emprestimoOfc);
         } else {
-            logger.error("Falha ao realizar empréstimo. Dados inválidos ou inconsistentes.");
-            return ResponseEntity.status(HttpStatus.UNPROCESSABLE_ENTITY)
-                    .body(null);
+            return ResponseEntity.status(HttpStatus.UNPROCESSABLE_ENTITY).body(null);
         }
     }
+
 
     @GetMapping
     public ResponseEntity<List<Emprestimo>> listarEmprestimos() {
@@ -89,10 +87,10 @@ public class EmprestimoController {
     }
 
     @PostMapping("/{id}/finalizar")
-    public ResponseEntity<Void> finalizarEmprestimo(@PathVariable Long id) {
+    public ResponseEntity<Boolean> finalizarEmprestimo(@PathVariable Long id) {
         Boolean sucesso = emprestimoService.finalizarEmprestimo(id);
         if (sucesso) {
-            return ResponseEntity.noContent().build();
+            return ResponseEntity.ok(true);
         } else {
             return ResponseEntity.notFound().build();
         }

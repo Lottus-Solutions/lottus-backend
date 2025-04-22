@@ -94,12 +94,14 @@ public class EmprestimoServiceImpl implements EmprestimoService{
         Optional<Emprestimo> emprestimoOpt = emprestimoRepository.findById(emprestimoId);
 
         if(emprestimoOpt.isEmpty()){
-            throw  new EmprestimoNaoEncontradoException();
+            throw new EmprestimoNaoEncontradoException();
         }
 
         Emprestimo emprestimo = emprestimoOpt.get();
 
         emprestimo.setStatusEmprestimo(StatusEmprestimo.FINALIZADO);
+
+        emprestimoRepository.save(emprestimo);
 
         return true;
     }

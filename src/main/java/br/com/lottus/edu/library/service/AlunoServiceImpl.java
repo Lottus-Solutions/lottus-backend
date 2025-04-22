@@ -46,7 +46,6 @@ public class AlunoServiceImpl implements AlunoService{
         Aluno alunoExistente = alunoRepository.findByMatricula(matricula)
                 .orElseThrow(AlunoNaoEncontradoException::new);
 
-        // Atualiza os dados do aluno
         if(alunodto.getNome() != null){
             alunoExistente.setNome(alunodto.getNome());
         }
@@ -59,8 +58,6 @@ public class AlunoServiceImpl implements AlunoService{
             alunoExistente.setQtdLivrosLidos(alunodto.getQtd_livros_lidos());
         }
 
-
-        // Se a turma for modificada, verificamos a existência da nova turma
         if (alunodto.getTurma_id() != null) {
             Turma turma = turmaRepository.findById(alunodto.getTurma_id())
                     .orElseThrow(TurmaNaoEncontradaException::new);
