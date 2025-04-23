@@ -1,6 +1,7 @@
 package br.com.lottus.edu.library.service;
 
 import br.com.lottus.edu.library.dto.RequestEmprestimo;
+import br.com.lottus.edu.library.exception.AlunoComEmprestimoException;
 import br.com.lottus.edu.library.exception.AlunoNaoEncontradoException;
 import br.com.lottus.edu.library.exception.EmprestimoNaoEncontradoException;
 import br.com.lottus.edu.library.exception.MultiClassNotFundException;
@@ -71,6 +72,14 @@ public class EmprestimoServiceImpl implements EmprestimoService{
     public Optional<Emprestimo> fazerEmprestimo(RequestEmprestimo requestEmprestimo) {
         Optional<Aluno> aluno = alunoRepository.findByMatricula(requestEmprestimo.matriculaAluno());
         Optional<Livro> livro = livroRepository.findById(requestEmprestimo.fk_livro());
+
+        List<Emprestimo> emprestimosAtivos = emprestimoRepository.findAllByStatusEmprestimo(StatusEmprestimo.ATIVO);
+
+        emprestimosAtivos.forEach(e -> {
+            if(e.getAluno().getMatricula().equals(requestEmprestimo.matriculaAluno())) {
+                throw new AlunoComEmprestimoException();
+            }
+        });
 
         Emprestimo novoEmprestimo = new Emprestimo();
 

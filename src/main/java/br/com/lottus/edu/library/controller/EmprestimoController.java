@@ -4,6 +4,7 @@ package br.com.lottus.edu.library.controller;
 import br.com.lottus.edu.library.dto.RequestEmprestimo;
 import br.com.lottus.edu.library.exception.AlunoComEmprestimoException;
 import br.com.lottus.edu.library.model.Emprestimo;
+import br.com.lottus.edu.library.model.StatusEmprestimo;
 import br.com.lottus.edu.library.repository.AlunoRepository;
 import br.com.lottus.edu.library.repository.EmprestimoRepository;
 import br.com.lottus.edu.library.security.CustomUserPrincipal;
@@ -45,13 +46,6 @@ public class EmprestimoController {
 
     @PostMapping
     public ResponseEntity<Emprestimo> fazerEmprestimo(@RequestBody RequestEmprestimo requestEmprestimo) {
-
-       Optional<Emprestimo> emprestimoOpt = alunoRepository.findByMatricula(requestEmprestimo.matriculaAluno())
-               .flatMap(emprestimoRepository::findByAluno);
-
-       if(emprestimoOpt.isPresent()){
-           throw new AlunoComEmprestimoException();
-       }
 
         Optional<Emprestimo> emprestimo = emprestimoService.fazerEmprestimo(requestEmprestimo);
 
