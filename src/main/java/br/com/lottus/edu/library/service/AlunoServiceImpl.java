@@ -95,5 +95,10 @@ public class AlunoServiceImpl implements AlunoService{
         return alunos;
     }
 
+    public void atualizarPontuacao(Aluno aluno) {
+        aluno.setQtdBonus(aluno.getQtdBonus() + 0.25);
+        alunoRepository.save(aluno);
+    }
+
 
 }

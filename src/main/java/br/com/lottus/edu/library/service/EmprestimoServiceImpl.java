@@ -46,6 +46,9 @@ public class EmprestimoServiceImpl implements EmprestimoService{
     @Autowired
     private LivroRepository livroRepository;
 
+    @Autowired
+    private AlunoServiceImpl alunoService;
+
     @Override
     public List<Emprestimo> listarEmprestimos() {
         return emprestimoRepository.findAll();
@@ -100,6 +103,11 @@ public class EmprestimoServiceImpl implements EmprestimoService{
         Emprestimo emprestimo = emprestimoOpt.get();
 
         emprestimo.setStatusEmprestimo(StatusEmprestimo.FINALIZADO);
+        emprestimoRepository.save(emprestimo);
+
+        if (emprestimo.getAluno().getQtdLivrosLidos() > 4) {
+            alunoService.atualizarPontuacao(emprestimo.getAluno());
+        }
 
         return true;
     }
