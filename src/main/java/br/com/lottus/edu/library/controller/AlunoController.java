@@ -5,6 +5,7 @@ import br.com.lottus.edu.library.model.Aluno;
 import br.com.lottus.edu.library.repository.AlunoRepository;
 import br.com.lottus.edu.library.service.AlunoService;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.apache.catalina.connector.Response;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -32,7 +33,7 @@ public class AlunoController {
         this.alunoService = alunoService;
         this.alunoRepository = alunoRepository;
     }
-    @Operation(summary = "Cadastra um novo aluno")
+    @Operation(summary = "Cadastra um novo aluno", description = "Retorna o aluno cadastrado", security = @SecurityRequirement(name= "bearerAuth"))
     @PostMapping("/cadastrar")
         public ResponseEntity<Aluno> adicionarAluno(@RequestBody AlunoDTO alunodto){
 
@@ -43,7 +44,7 @@ public class AlunoController {
             return ResponseEntity.ok(newAluno);
         }
 
-    @Operation(summary = "Remover aluno pelo numero da Matricula")
+    @Operation(summary = "Remover aluno pelo numero da Matricula", description = "Retorna uma mensagem informado sobre o resultado da operação")
 
     @DeleteMapping("/remover/{matricula}")
     public ResponseEntity<String> removerAluno(@PathVariable String matricula){
@@ -64,7 +65,7 @@ public class AlunoController {
         }
     }
 
-    @Operation(summary = "Editar aluno pelo numero da Matricula")
+    @Operation(summary = "Editar aluno pelo numero da Matricula", description = "Retorna uma mensagem informado sobre o resultado da operação")
     @PutMapping("/editar/{matricula}")
     public ResponseEntity<String> editarAluno(@PathVariable String matricula, @RequestBody AlunoDTO newAluno) {
         System.out.println("Matricula: " + matricula);
@@ -87,7 +88,7 @@ public class AlunoController {
 
     }
 
-    @Operation(summary = "Obtem aluno pelo numero da Matricula")
+    @Operation(summary = "Obtem aluno pelo numero da Matricula", description = "Retorna o aluno encontrado")
     @GetMapping("/{matricula}")
     public ResponseEntity<Aluno> buscarPorMatricula(@PathVariable String matricula){
         return alunoService.buscarAlunoPorMatricula(matricula)
@@ -95,13 +96,13 @@ public class AlunoController {
                 .orElse(ResponseEntity.notFound().build());
     }
 
-    @Operation(summary = "Obtem alunos de uma determinada turma")
+    @Operation(summary = "Obtem alunos de uma determinada turma", description = "Retorna os alunos encontrados")
     @GetMapping("/turma/{turmaId}")
     public ResponseEntity<Iterable<Aluno>> buscarPorTurma(@PathVariable Long turmaId){
         return ResponseEntity.ok(alunoService.listarAlunosPorTurma(turmaId));
     }
 
-    @Operation(summary = "Lista todos os alunos")
+    @Operation(summary = "Lista todos os alunos", description = "Retorna todos os alunos cadastrados")
     @GetMapping
     public ResponseEntity<List<Aluno>> listar() {
         List<Aluno> alunos = alunoService.listarAlunos();

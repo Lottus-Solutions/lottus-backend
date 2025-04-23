@@ -10,6 +10,8 @@ import br.com.lottus.edu.library.repository.EmprestimoRepository;
 import br.com.lottus.edu.library.security.CustomUserPrincipal;
 import br.com.lottus.edu.library.service.EmprestimoService;
 import br.com.lottus.edu.library.service.EmprestimoServiceImpl;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,6 +29,7 @@ import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 
+@Tag(name = "Empréstimos",description = "Endpoint para gerenciamento dos empréstimos")
 @RestController
 @RequestMapping("/emprestimos")
 public class EmprestimoController {
@@ -44,6 +47,7 @@ public class EmprestimoController {
         this.emprestimoRepository = emprestimoRepository;
     }
 
+    @Operation(summary = "Realiza um empréstimo", description = "Retorna o empréstimo realizado")
     @PostMapping
     public ResponseEntity<Emprestimo> fazerEmprestimo(@RequestBody RequestEmprestimo requestEmprestimo) {
 
@@ -64,6 +68,7 @@ public class EmprestimoController {
     }
 
 
+    @Operation(summary = "Lista todos os empréstimos", description = "Retorna uma lista de todos os empréstimos")
     @GetMapping
     public ResponseEntity<List<Emprestimo>> listarEmprestimos() {
         List<Emprestimo> emprestimos = emprestimoService.listarEmprestimos();

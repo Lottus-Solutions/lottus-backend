@@ -2,12 +2,14 @@ package br.com.lottus.edu.library.controller;
 
 import br.com.lottus.edu.library.model.Categoria;
 import br.com.lottus.edu.library.service.CategoriaService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-
+@Tag(name = "Empréstimos", description = "Endpoint para gerenciamento dos empréstimos")
 @RestController
 @RequestMapping("/categorias")
 public class CategoriaController {
@@ -18,18 +20,21 @@ public class CategoriaController {
         this.categoriaService = categoriaService;
     }
 
+    @Operation(summary = "Lista todas as categorias", description = "Retorna uma lista de todas as categorias")
     @GetMapping
     public ResponseEntity<List<Categoria>> listarTodas() {
         List<Categoria> categorias = categoriaService.listarCategorias();
         return ResponseEntity.ok(categorias);
     }
 
+    @Operation(summary = "Adiciona uma nova categoria", description = "Retorna um status created")
     @PostMapping
     public ResponseEntity<Categoria> adicionarCategoria(@RequestBody Categoria categoria) {
         categoriaService.adcionarCategoria(categoria);
         return ResponseEntity.status(HttpStatus.CREATED).body(categoria);
     }
 
+    @Operation(summary = "Remove uma categoria", description = "Retorna uma mensagem informando o resultado da operação")
     @DeleteMapping("/{id}")
     public ResponseEntity<String> removerCategoria(@PathVariable Long id) {
         categoriaService.removerCategoria(id);
