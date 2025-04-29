@@ -2,6 +2,9 @@ package br.com.lottus.edu.library.model;
 
 import jakarta.persistence.*;
 
+import java.util.ArrayList;
+import java.util.List;
+
 @Entity
 @Table(name = "aluno")
 public class Aluno {
@@ -18,6 +21,8 @@ public class Aluno {
     @JoinColumn(name = "fk_turma", nullable = false)
     private Turma turma;
 
+    @OneToMany(mappedBy = "aluno", cascade = CascadeType.REMOVE, orphanRemoval = true)
+    private List<Emprestimo> emprestimos = new ArrayList<>();
 
     public Integer getQtdLivrosLidos() {
         return qtdLivrosLidos;

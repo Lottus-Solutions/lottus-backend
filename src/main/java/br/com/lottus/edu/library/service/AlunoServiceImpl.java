@@ -100,5 +100,9 @@ public class AlunoServiceImpl implements AlunoService{
         alunoRepository.save(aluno);
     }
 
+    public void atualizarLivrosLidos(Aluno aluno) {
+        aluno.setQtdLivrosLidos(aluno.getQtdLivrosLidos() + 1);
+        alunoRepository.save(aluno);
+    }
 
 }

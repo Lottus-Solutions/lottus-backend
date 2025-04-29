@@ -109,6 +109,10 @@ public class EmprestimoServiceImpl implements EmprestimoService{
             alunoService.atualizarPontuacao(emprestimo.getAluno());
         }
 
+        alunoService.atualizarLivrosLidos(emprestimo.getAluno());
+
+        System.out.println(emprestimo.getAluno());
+
         return true;
     }
 
