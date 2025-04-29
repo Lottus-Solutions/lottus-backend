@@ -9,10 +9,12 @@ public class Livro {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Column(unique = true)
     private String nome;
+
     private String autor;
     private Integer quantidade;
-    private Boolean status;
+    private StatusLivro status;
 
     @ManyToOne
     @JoinColumn(name = "fk_categoria", nullable = false)
@@ -20,7 +22,7 @@ public class Livro {
 
     public Livro() {}
 
-    public Livro(String nome, String autor, Categoria categoria, Boolean status, Integer quantidade) {
+    public Livro(String nome, String autor, Categoria categoria, StatusLivro status, Integer quantidade) {
         this.nome = nome;
         this.autor = autor;
         this.categoria = categoria;
@@ -60,11 +62,11 @@ public class Livro {
         this.categoria = categoria;
     }
 
-    public Boolean getStatus() {
+    public StatusLivro getStatus() {
         return status;
     }
 
-    public void setStatus(Boolean status) {
+    public void setStatus(StatusLivro status) {
         this.status = status;
     }
 
