@@ -16,6 +16,8 @@ import java.util.Optional;
 public class UsuarioServiceImpl implements UsuarioService {
     private final UsuarioRepository usuarioRepository;
     private final PasswordEncoder passwordEncoder;
+    private final AlunoServiceImpl alunoService;
+    private final EmprestimoServiceImpl emprestimoService;
 
     @Override
     @Transactional
@@ -51,4 +53,12 @@ public class UsuarioServiceImpl implements UsuarioService {
         return usuarioRepository.findByEmail(email)
                 .orElseThrow(() -> new UsernameNotFoundException("Usuario com email " + email + " não encontrado"));
     }
+
+    @Override
+    public void renovarSemestre() {
+        alunoService.resetarBonus();
+        alunoService.resetarLivrosLidos();
+        emprestimoService.resetarStatus();
+    }
+
 }

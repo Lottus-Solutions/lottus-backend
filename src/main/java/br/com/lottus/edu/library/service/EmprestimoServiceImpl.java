@@ -105,13 +105,11 @@ public class EmprestimoServiceImpl implements EmprestimoService{
         emprestimo.setStatusEmprestimo(StatusEmprestimo.FINALIZADO);
         emprestimoRepository.save(emprestimo);
 
+        alunoService.atualizarLivrosLidos(emprestimo.getAluno());
+
         if (emprestimo.getAluno().getQtdLivrosLidos() > 4) {
             alunoService.atualizarPontuacao(emprestimo.getAluno());
         }
-
-        alunoService.atualizarLivrosLidos(emprestimo.getAluno());
-
-        System.out.println(emprestimo.getAluno());
 
         return true;
     }
@@ -201,7 +199,13 @@ public class EmprestimoServiceImpl implements EmprestimoService{
         return estrategiaAtrasados.filtrar(todosEmprestimos);
     }
 
+    public void resetarStatus() {
+         List<Emprestimo> emprestimosFinalizados = emprestimoRepository.findAllByStatusEmprestimo(StatusEmprestimo.FINALIZADO);
 
-
+         emprestimosFinalizados.forEach(emprestimo -> {
+             emprestimo.setStatusEmprestimo(StatusEmprestimo.ARQUIVADO);
+             emprestimoRepository.save(emprestimo);
+         });
+    }
 
 }

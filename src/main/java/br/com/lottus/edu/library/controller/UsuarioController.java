@@ -11,6 +11,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -38,5 +39,11 @@ public class UsuarioController {
         usuario.setSenha(null);
 
         return ResponseEntity.ok(usuario);
+    }
+
+    @PutMapping("/renovar-semestre")
+    public ResponseEntity<String> renovarSemestre() {
+        usuarioService.renovarSemestre();
+        return ResponseEntity.ok("Semestre renovado com sucesso");
     }
 }

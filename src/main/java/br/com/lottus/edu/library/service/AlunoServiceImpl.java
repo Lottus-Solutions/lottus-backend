@@ -105,4 +105,21 @@ public class AlunoServiceImpl implements AlunoService{
         alunoRepository.save(aluno);
     }
 
+    public void resetarBonus() {
+        List<Aluno> alunos = alunoRepository.findAll();
+
+        for (Aluno aluno : alunos) {
+            aluno.setQtdBonus(0.0);
+            alunoRepository.save(aluno);
+        }
+    }
+
+    public void resetarLivrosLidos() {
+        List<Aluno> alunos = alunoRepository.findAll();
+
+        for (Aluno aluno : alunos) {
+            aluno.setQtdLivrosLidos(0);
+            alunoRepository.save(aluno);
+        }
+    }
 }
