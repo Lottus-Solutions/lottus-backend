@@ -5,6 +5,8 @@ import br.com.lottus.edu.library.exception.NenhumAlunoEncotradoException;
 import br.com.lottus.edu.library.exception.AlunoNaoEncontradoException;
 import br.com.lottus.edu.library.exception.TurmaNaoEncontradaException;
 import br.com.lottus.edu.library.model.Aluno;
+import br.com.lottus.edu.library.model.Emprestimo;
+import br.com.lottus.edu.library.model.StatusEmprestimo;
 import br.com.lottus.edu.library.model.Turma;
 import br.com.lottus.edu.library.repository.AlunoRepository;
 import br.com.lottus.edu.library.repository.TurmaRepository;
@@ -109,7 +111,7 @@ public class AlunoServiceImpl implements AlunoService{
         List<Aluno> alunos = alunoRepository.findAll();
 
         for (Aluno aluno : alunos) {
-            aluno.setQtdBonus(0.0);
+            aluno.resetarBonus();
             alunoRepository.save(aluno);
         }
     }
@@ -118,7 +120,7 @@ public class AlunoServiceImpl implements AlunoService{
         List<Aluno> alunos = alunoRepository.findAll();
 
         for (Aluno aluno : alunos) {
-            aluno.setQtdLivrosLidos(0);
+            aluno.resetarLivrosLidos();
             alunoRepository.save(aluno);
         }
     }

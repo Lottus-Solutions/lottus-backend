@@ -1,6 +1,7 @@
 package br.com.lottus.edu.library.model;
 
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
 import org.springframework.boot.autoconfigure.web.WebProperties;
 
@@ -16,6 +17,7 @@ public class Emprestimo {
 
     @ManyToOne
     @JoinColumn(name= "aluno_id", nullable = false)
+    @JsonBackReference
     private Aluno aluno;
 
     @ManyToOne

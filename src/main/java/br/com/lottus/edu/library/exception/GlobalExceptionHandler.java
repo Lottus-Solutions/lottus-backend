@@ -33,4 +33,9 @@ public class GlobalExceptionHandler {
     public ResponseEntity<String> handleMultiClassNaoEncontada(MultiClassNotFundException e){
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
     }
+
+    @ExceptionHandler(EmprestimoAtivoException.class)
+    public ResponseEntity<String> handleEmprestimoAtivo(EmprestimoAtivoException e){
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+    }
 }

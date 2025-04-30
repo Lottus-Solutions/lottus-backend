@@ -1,9 +1,7 @@
 package br.com.lottus.edu.library.service;
 
 import br.com.lottus.edu.library.dto.RequestEmprestimo;
-import br.com.lottus.edu.library.exception.AlunoNaoEncontradoException;
-import br.com.lottus.edu.library.exception.EmprestimoNaoEncontradoException;
-import br.com.lottus.edu.library.exception.MultiClassNotFundException;
+import br.com.lottus.edu.library.exception.*;
 import br.com.lottus.edu.library.model.Aluno;
 import br.com.lottus.edu.library.model.Emprestimo;
 import br.com.lottus.edu.library.model.Livro;
@@ -79,17 +77,21 @@ public class EmprestimoServiceImpl implements EmprestimoService{
 
         if(aluno.isPresent() && livro.isPresent()){
 
-            novoEmprestimo.setAluno(aluno.get());
-            novoEmprestimo.setLivro(livro.get());
-            novoEmprestimo.setDataEmprestimo(requestEmprestimo.dataEmprestimo());
-            novoEmprestimo.setDataDevolucaoPrevista(requestEmprestimo.dataEmprestimo().plusDays(qtdDias));
-            novoEmprestimo.setStatusEmprestimo(StatusEmprestimo.ATIVO);
-        }else{
+            if (aluno.get().podeFazerEmpresitmo()) {
+                novoEmprestimo.setAluno(aluno.get());
+                novoEmprestimo.setLivro(livro.get());
+                novoEmprestimo.setDataEmprestimo(requestEmprestimo.dataEmprestimo());
+                novoEmprestimo.setDataDevolucaoPrevista(requestEmprestimo.dataEmprestimo().plusDays(qtdDias));
+                novoEmprestimo.setStatusEmprestimo(StatusEmprestimo.ATIVO);
+            } else {
+                throw new EmprestimoAtivoException();
+            }
+
+        } else{
             throw  new MultiClassNotFundException(aluno, livro);
         }
 
             return Optional.of(emprestimoRepository.save(novoEmprestimo));
-
     }
 
     @Override
