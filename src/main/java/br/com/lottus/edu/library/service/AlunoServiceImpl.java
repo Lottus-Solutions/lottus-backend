@@ -1,6 +1,9 @@
 package br.com.lottus.edu.library.service;
 
 import br.com.lottus.edu.library.dto.AlunoDTO;
+import br.com.lottus.edu.library.exception.NenhumAlunoEncotradoException;
+import br.com.lottus.edu.library.exception.AlunoNaoEncontradoException;
+import br.com.lottus.edu.library.exception.TurmaNaoEncontradaException;
 import br.com.lottus.edu.library.model.Aluno;
 import br.com.lottus.edu.library.model.Turma;
 import br.com.lottus.edu.library.repository.AlunoRepository;
@@ -41,9 +44,7 @@ public class AlunoServiceImpl implements AlunoService{
     public Boolean editarAluno(String matricula, AlunoDTO alunodto) {
         // Busca o aluno existente pelo ID
         Aluno alunoExistente = alunoRepository.findByMatricula(matricula)
-                .orElseThrow(() -> new RuntimeException("Aluno não encontrado"));
-
-        System.out.println("Aluno:" + alunodto.getNome() + alunodto.getQtd_livros_lidos());
+                .orElseThrow(AlunoNaoEncontradoException::new);
 
         // Atualiza os dados do aluno
         if(alunodto.getNome() != null){
@@ -62,7 +63,7 @@ public class AlunoServiceImpl implements AlunoService{
         // Se a turma for modificada, verificamos a existência da nova turma
         if (alunodto.getTurma_id() != null) {
             Turma turma = turmaRepository.findById(alunodto.getTurma_id())
-                    .orElseThrow(() -> new RuntimeException("Turma não encontrada"));
+                    .orElseThrow(TurmaNaoEncontradaException::new);
             alunoExistente.setTurma(turma);
         }
 
@@ -83,6 +84,42 @@ public class AlunoServiceImpl implements AlunoService{
         return alunoRepository.findByMatricula(matricula);
     }
 
+    @Override
+    public List<Aluno> listarAlunos() {
+        List<Aluno> alunos = alunoRepository.findAll();
 
+        if (alunos.isEmpty()) {
+            throw new NenhumAlunoEncotradoException();
+        }
 
+        return alunos;
+    }
+
+    public void atualizarPontuacao(Aluno aluno) {
+        aluno.setQtdBonus(aluno.getQtdBonus() + 0.25);
+        alunoRepository.save(aluno);
+    }
+
+    public void atualizarLivrosLidos(Aluno aluno) {
+        aluno.setQtdLivrosLidos(aluno.getQtdLivrosLidos() + 1);
+        alunoRepository.save(aluno);
+    }
+
+    public void resetarBonus() {
+        List<Aluno> alunos = alunoRepository.findAll();
+
+        for (Aluno aluno : alunos) {
+            aluno.setQtdBonus(0.0);
+            alunoRepository.save(aluno);
+        }
+    }
+
+    public void resetarLivrosLidos() {
+        List<Aluno> alunos = alunoRepository.findAll();
+
+        for (Aluno aluno : alunos) {
+            aluno.setQtdLivrosLidos(0);
+            alunoRepository.save(aluno);
+        }
+    }
 }

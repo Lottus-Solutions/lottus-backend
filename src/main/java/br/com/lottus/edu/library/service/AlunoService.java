@@ -53,6 +53,6 @@ public interface AlunoService {
      */
     Optional<Aluno> buscarAlunoPorMatricula(String matricula);
 
-
+    List<Aluno> listarAlunos();
 
 }

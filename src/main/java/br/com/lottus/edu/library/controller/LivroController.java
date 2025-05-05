@@ -3,9 +3,8 @@ package br.com.lottus.edu.library.controller;
 import br.com.lottus.edu.library.dto.LivroRequestDTO;
 import br.com.lottus.edu.library.dto.LivroResponseDTO;
 import br.com.lottus.edu.library.model.Categoria;
-import br.com.lottus.edu.library.repository.CategoriaRepository;
+import br.com.lottus.edu.library.service.CategoriaService;
 import br.com.lottus.edu.library.service.LivroService;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -16,8 +15,13 @@ import java.util.List;
 @RequestMapping("/livros")
 public class LivroController {
 
-    @Autowired
-    private LivroService livroService;
+    private final LivroService livroService;
+    private CategoriaService categoriaService;
+
+    public LivroController(LivroService livroService, CategoriaService categoriaService) {
+        this.livroService = livroService;
+        this.categoriaService = categoriaService;
+    }
 
     @GetMapping
     public ResponseEntity<List<LivroResponseDTO>> buscarTodos() {
@@ -50,8 +54,8 @@ public class LivroController {
     }
 
     @GetMapping("/filtrar-por-categoria")
-    public ResponseEntity<List<LivroResponseDTO>> filtrarLivroPorCategoria(@RequestParam Categoria categoria) {
-        List<LivroResponseDTO> livros = livroService.filtrarPorCategoria(categoria);
+    public ResponseEntity<List<LivroResponseDTO>> filtrarLivroPorCategoria(@RequestParam List<Long> categoriaIds) {
+        List<LivroResponseDTO> livros = livroService.filtrarPorCategoria(categoriaIds);
         return ResponseEntity.ok(livros);
     }
 }

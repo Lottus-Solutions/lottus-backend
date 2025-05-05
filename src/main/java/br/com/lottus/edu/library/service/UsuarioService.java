@@ -36,4 +36,6 @@ public interface UsuarioService {
      * @return O usuario encontrado, sem sua senha.
      * */
     Usuario buscarPorEmail(String email);
+
+    void renovarSemestre();
 }
