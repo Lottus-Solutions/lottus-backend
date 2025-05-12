@@ -11,11 +11,13 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public interface EmprestimoRepository extends JpaRepository<Emprestimo, Long> {
     List<Emprestimo> findAllByStatusEmprestimo(StatusEmprestimo statusEmprestimo);
     List<Emprestimo> findByLivroAndAluno(Livro livro, Aluno aluno);
     List<Emprestimo> findByLivro(Livro livro);
-    List<Emprestimo> findByAluno(Aluno aluno);
+    List<Emprestimo> findAllByAluno(Aluno aluno);
+    Optional<Emprestimo> findByAluno(Aluno aluno);
 }

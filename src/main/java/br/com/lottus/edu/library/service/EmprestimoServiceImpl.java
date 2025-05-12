@@ -1,6 +1,7 @@
 package br.com.lottus.edu.library.service;
 
 import br.com.lottus.edu.library.dto.RequestEmprestimo;
+import br.com.lottus.edu.library.exception.AlunoComEmprestimoException;
 import br.com.lottus.edu.library.exception.AlunoNaoEncontradoException;
 import br.com.lottus.edu.library.exception.EmprestimoNaoEncontradoException;
 import br.com.lottus.edu.library.exception.MultiClassNotFundException;
@@ -75,6 +76,14 @@ public class EmprestimoServiceImpl implements EmprestimoService{
         Optional<Aluno> aluno = alunoRepository.findByMatricula(requestEmprestimo.matriculaAluno());
         Optional<Livro> livro = livroRepository.findById(requestEmprestimo.fk_livro());
 
+        List<Emprestimo> emprestimosAtivos = emprestimoRepository.findAllByStatusEmprestimo(StatusEmprestimo.ATIVO);
+
+        emprestimosAtivos.forEach(e -> {
+            if(e.getAluno().getMatricula().equals(requestEmprestimo.matriculaAluno())) {
+                throw new AlunoComEmprestimoException();
+            }
+        });
+
         Emprestimo novoEmprestimo = new Emprestimo();
 
         if(aluno.isPresent() && livro.isPresent()){
@@ -97,7 +106,7 @@ public class EmprestimoServiceImpl implements EmprestimoService{
         Optional<Emprestimo> emprestimoOpt = emprestimoRepository.findById(emprestimoId);
 
         if(emprestimoOpt.isEmpty()){
-            throw  new EmprestimoNaoEncontradoException();
+            throw new EmprestimoNaoEncontradoException();
         }
 
         Emprestimo emprestimo = emprestimoOpt.get();
@@ -110,6 +119,8 @@ public class EmprestimoServiceImpl implements EmprestimoService{
         if (emprestimo.getAluno().getQtdLivrosLidos() > 4) {
             alunoService.atualizarPontuacao(emprestimo.getAluno());
         }
+
+        emprestimoRepository.save(emprestimo);
 
         return true;
     }
