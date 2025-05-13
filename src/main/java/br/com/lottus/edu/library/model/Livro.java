@@ -14,6 +14,9 @@ public class Livro {
     private Integer quantidade;
     private Boolean status;
 
+    @Column(length = 500)
+    private String descricao;
+
     @ManyToOne
     @JoinColumn(name = "fk_categoria", nullable = false)
     private Categoria categoria;
@@ -74,5 +77,13 @@ public class Livro {
 
     public void setQuantidade(Integer quantidade) {
         this.quantidade = quantidade;
+    }
+
+    public String getDescricao() {
+        return descricao;
+    }
+
+    public void setDescricao(String descricao) {
+        this.descricao = descricao;
     }
 }

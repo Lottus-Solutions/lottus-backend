@@ -39,7 +39,8 @@ public class LivroService {
                         livro.getAutor(),
                         livro.getQuantidade(),
                         livro.getStatus(),
-                        livro.getCategoria().getNome()))
+                        livro.getCategoria().getNome(),
+                        livro.getDescricao()))
                 .toList();
     }
 
@@ -53,9 +54,10 @@ public class LivroService {
         livro.setQuantidade(livroRequestDTO.quantidade());
         livro.setStatus(livroRequestDTO.status());
         livro.setCategoria(categoria);
+        livro.setDescricao(livroRequestDTO.descricao());
         livro = livroRepository.save(livro);
 
-        return new LivroResponseDTO(livro.getId(), livro.getNome(), livro.getAutor(), livro.getQuantidade(), livro.getStatus(), livro.getCategoria().getNome());
+        return new LivroResponseDTO(livro.getId(), livro.getNome(), livro.getAutor(), livro.getQuantidade(), livro.getStatus(), livro.getCategoria().getNome(), livro.getDescricao());
     }
 
     public LivroResponseDTO atualizarLivro(LivroRequestDTO livroRequestDTO, Long id) {
@@ -70,10 +72,11 @@ public class LivroService {
         livro.setQuantidade(livroRequestDTO.quantidade());
         livro.setStatus(livroRequestDTO.status());
         livro.setCategoria(categoria);
+        livro.setDescricao(livroRequestDTO.descricao());
 
         livro = livroRepository.save(livro);
 
-        return new LivroResponseDTO(livro.getId(), livro.getNome(), livro.getAutor(), livro.getQuantidade(), livro.getStatus(), livro.getCategoria().getNome());
+        return new LivroResponseDTO(livro.getId(), livro.getNome(), livro.getAutor(), livro.getQuantidade(), livro.getStatus(), livro.getCategoria().getNome(), livro.getDescricao());
     }
 
     public ResponseEntity<Void> removerLivro(Long id) {
@@ -94,7 +97,8 @@ public class LivroService {
                 livro.getAutor(),
                 livro.getQuantidade(),
                 livro.getStatus(),
-                livro.getCategoria().getNome()))
+                livro.getCategoria().getNome(),
+                livro.getDescricao()))
                 .toList();
 
         if (livrosEncontrados.isEmpty()) {
@@ -112,7 +116,8 @@ public class LivroService {
                         livro.getAutor(),
                         livro.getQuantidade(),
                         livro.getStatus(),
-                        livro.getCategoria().getNome()))
+                        livro.getCategoria().getNome(),
+                        livro.getDescricao()))
                 .toList();
 
         if (livros.isEmpty()) {
