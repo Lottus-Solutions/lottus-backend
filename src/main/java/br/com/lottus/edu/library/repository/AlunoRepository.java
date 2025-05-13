@@ -9,9 +9,9 @@ import java.util.List;
 import java.util.Optional;
 
 @Repository
-public interface AlunoRepository extends JpaRepository<Aluno, String> {
+public interface AlunoRepository extends JpaRepository<Aluno, Long> {
 
-    Optional<Aluno> findByMatricula(String matricula);
+    Optional<Aluno> findByMatricula(Long matricula);
 
     List<Aluno> findAllByTurma(Optional<Turma> turma);
 }

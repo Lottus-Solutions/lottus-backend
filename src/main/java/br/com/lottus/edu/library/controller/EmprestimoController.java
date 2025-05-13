@@ -98,7 +98,7 @@ public class EmprestimoController {
     @GetMapping("/buscar")
     public ResponseEntity<List<Emprestimo>> buscarEmprestimos(
             @RequestParam(required = false) Long livroId,
-            @RequestParam(required = false) String matricula,
+            @RequestParam(required = false) Long matricula,
             @RequestParam(required = false, defaultValue = "false") Boolean apenasAtrasados) {
 
         logger.info("Buscando empréstimos - Livro ID: {}, Matrícula: {}, Apenas Atrasados: {}", livroId, matricula, apenasAtrasados);
@@ -115,7 +115,7 @@ public class EmprestimoController {
     }
 
     @GetMapping("/historico/aluno/{matricula}")
-    public ResponseEntity<List<Emprestimo>> buscarHistoricoAluno(@PathVariable String matricula) {
+    public ResponseEntity<List<Emprestimo>> buscarHistoricoAluno(@PathVariable Long matricula) {
         List<Emprestimo> historico = emprestimoService.buscarHistoricoAluno(matricula);
         return ResponseEntity.ok(historico);
     }

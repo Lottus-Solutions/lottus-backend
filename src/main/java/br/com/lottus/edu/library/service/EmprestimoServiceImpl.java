@@ -126,7 +126,7 @@ public class EmprestimoServiceImpl implements EmprestimoService{
     }
 
     @Override
-    public List<Emprestimo> buscarEmprestimos(Long livroId, String matricula, Boolean apenasAtrasados) {
+    public List<Emprestimo> buscarEmprestimos(Long livroId, Long matricula, Boolean apenasAtrasados) {
 
         Optional<Livro> livroOpt = livroId != null ? livroRepository.findById(livroId) : Optional.empty();
         Optional<Aluno> alunoOpt = matricula != null ? alunoRepository.findByMatricula(matricula) : Optional.empty();
@@ -179,7 +179,7 @@ public class EmprestimoServiceImpl implements EmprestimoService{
     }
 
     @Override
-    public List<Emprestimo> buscarHistoricoAluno(String matricula) {
+    public List<Emprestimo> buscarHistoricoAluno(Long matricula) {
         Aluno aluno = alunoRepository.findById(matricula)
                 .orElseThrow(AlunoNaoEncontradoException::new);
 

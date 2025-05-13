@@ -41,7 +41,7 @@ public class AlunoServiceImpl implements AlunoService{
         return true;
     }
 
-    public Boolean editarAluno(String matricula, AlunoDTO alunodto) {
+    public Boolean editarAluno(Long matricula, AlunoDTO alunodto) {
         // Busca o aluno existente pelo ID
         Aluno alunoExistente = alunoRepository.findByMatricula(matricula)
                 .orElseThrow(AlunoNaoEncontradoException::new);
@@ -77,7 +77,7 @@ public class AlunoServiceImpl implements AlunoService{
     }
 
     @Override
-    public Optional<Aluno> buscarAlunoPorMatricula(String matricula) {
+    public Optional<Aluno> buscarAlunoPorMatricula(Long matricula) {
         return alunoRepository.findByMatricula(matricula);
     }
 

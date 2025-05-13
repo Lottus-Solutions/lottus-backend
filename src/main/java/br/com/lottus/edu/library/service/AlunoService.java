@@ -35,7 +35,7 @@ public interface AlunoService {
      * @param alunodto o objeto AlunoDTO com os dados atualizados para o aluno
      * @return true se a edição for bem sucedida
      */
-    Boolean editarAluno(String matricula, AlunoDTO alunodto);
+    Boolean editarAluno(Long matricula, AlunoDTO alunodto);
 
     /**
      *
@@ -51,7 +51,7 @@ public interface AlunoService {
      * @param matricula o numero da matriculo do aluno
      * @return aluno o objeto aluno para alimentação dos seus dados no perfil
      */
-    Optional<Aluno> buscarAlunoPorMatricula(String matricula);
+    Optional<Aluno> buscarAlunoPorMatricula(Long matricula);
 
     List<Aluno> listarAlunos();
 

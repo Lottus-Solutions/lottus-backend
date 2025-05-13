@@ -47,7 +47,7 @@ public class AlunoController {
     @Operation(summary = "Remover aluno pelo numero da Matricula", description = "Retorna uma mensagem informado sobre o resultado da operação")
 
     @DeleteMapping("/remover/{matricula}")
-    public ResponseEntity<String> removerAluno(@PathVariable String matricula){
+    public ResponseEntity<String> removerAluno(@PathVariable Long matricula){
         Optional<Aluno> aluno = alunoRepository.findByMatricula(matricula);
 
         if(aluno.isEmpty()) {
@@ -67,7 +67,7 @@ public class AlunoController {
 
     @Operation(summary = "Editar aluno pelo numero da Matricula", description = "Retorna uma mensagem informado sobre o resultado da operação")
     @PutMapping("/editar/{matricula}")
-    public ResponseEntity<String> editarAluno(@PathVariable String matricula, @RequestBody AlunoDTO newAluno) {
+    public ResponseEntity<String> editarAluno(@PathVariable Long matricula, @RequestBody AlunoDTO newAluno) {
         System.out.println("Matricula: " + matricula);
         Optional<Aluno> aluno = alunoRepository.findByMatricula(matricula);
 
@@ -90,7 +90,7 @@ public class AlunoController {
 
     @Operation(summary = "Obtem aluno pelo numero da Matricula", description = "Retorna o aluno encontrado")
     @GetMapping("/{matricula}")
-    public ResponseEntity<Aluno> buscarPorMatricula(@PathVariable String matricula){
+    public ResponseEntity<Aluno> buscarPorMatricula(@PathVariable Long matricula){
         return alunoService.buscarAlunoPorMatricula(matricula)
                 .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
