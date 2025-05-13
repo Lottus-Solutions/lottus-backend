@@ -2,6 +2,7 @@ package br.com.lottus.edu.library.controller;
 
 import br.com.lottus.edu.library.dto.AlunoDTO;
 import br.com.lottus.edu.library.model.Aluno;
+import br.com.lottus.edu.library.model.Turma;
 import br.com.lottus.edu.library.repository.AlunoRepository;
 import br.com.lottus.edu.library.service.AlunoService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -107,6 +108,20 @@ public class AlunoController {
     public ResponseEntity<List<Aluno>> listar() {
         List<Aluno> alunos = alunoService.listarAlunos();
         return ResponseEntity.ok(alunos);
+    }
+
+    @Operation(summary = "Lista alunos por nome", description = "Retorna todos os alunos com o nome informado")
+    @GetMapping("nome/{nome}")
+    public ResponseEntity<List<Aluno>> listarAlunosPorNome(@PathVariable String nome) {
+        List<Aluno> alunos = alunoService.listarAlunosPorNome(nome);
+        return ResponseEntity.ok(alunos);
+    }
+
+    @Operation(summary = "Lista todas as turmas", description = "Retorna todas as turmas cadastradas")
+    @GetMapping("/listar-turmas")
+    public ResponseEntity<List<Turma>> listarTurmas(){
+        List<Turma> turmas = alunoService.listarTurmas();
+        return ResponseEntity.ok(turmas);
     }
 
 }

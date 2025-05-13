@@ -55,4 +55,15 @@ public interface AlunoService {
 
     List<Aluno> listarAlunos();
 
+    /**
+     * Listar alunos por nome
+     *
+     * @param nome o nome do aluno a ser buscado
+     * @return lista de alunos com o nome informado
+     */
+    List<Aluno> listarAlunosPorNome(String nome);
+
+
+    List<Turma> listarTurmas();
+
 }

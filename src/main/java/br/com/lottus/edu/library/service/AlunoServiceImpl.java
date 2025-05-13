@@ -119,4 +119,20 @@ public class AlunoServiceImpl implements AlunoService{
             alunoRepository.save(aluno);
         }
     }
+
+    public List<Aluno> listarAlunosPorNome(String nome) {
+        List<Aluno> alunos = alunoRepository.findAllByNomeContainingIgnoreCase(nome);
+
+        if (alunos.isEmpty()) {
+            throw new NenhumAlunoEncotradoException();
+        }
+
+        return alunos;
+    }
+
+    public List<Turma> listarTurmas(){
+        return turmaRepository.findAll();
+    }
 }
+
+
