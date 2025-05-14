@@ -36,7 +36,7 @@ public class Aluno {
         this.qtdLivrosLidos = 0;
     }
 
-    public Boolean podeFazerEmpresitmo() {
+    public Boolean podeFazerEmprestimo() {
         return emprestimos.stream()
                 .noneMatch(emprestimo -> emprestimo.getStatusEmprestimo() == StatusEmprestimo.ATIVO);
     }

@@ -38,7 +38,7 @@ public class LivroService {
                         livro.getNome(),
                         livro.getAutor(),
                         livro.getQuantidade(),
-                        livro.getStatus(),
+                        livro.getQuantidadeDisponivel(),
                         livro.getCategoria().getNome(),
                         livro.getDescricao()))
                 .toList();
@@ -52,12 +52,12 @@ public class LivroService {
         livro.setNome(livroRequestDTO.nome());
         livro.setAutor(livroRequestDTO.autor());
         livro.setQuantidade(livroRequestDTO.quantidade());
-        livro.setStatus(livroRequestDTO.status());
+        livro.setQuantidadeDisponivel(livroRequestDTO.quantidade());
         livro.setCategoria(categoria);
         livro.setDescricao(livroRequestDTO.descricao());
         livro = livroRepository.save(livro);
 
-        return new LivroResponseDTO(livro.getId(), livro.getNome(), livro.getAutor(), livro.getQuantidade(), livro.getStatus(), livro.getCategoria().getNome(), livro.getDescricao());
+        return new LivroResponseDTO(livro.getId(), livro.getNome(), livro.getAutor(), livro.getQuantidade(), livro.getQuantidadeDisponivel(), livro.getCategoria().getNome(), livro.getDescricao());
     }
 
     public LivroResponseDTO atualizarLivro(LivroRequestDTO livroRequestDTO, Long id) {
@@ -70,13 +70,12 @@ public class LivroService {
         livro.setNome(livroRequestDTO.nome());
         livro.setAutor(livroRequestDTO.autor());
         livro.setQuantidade(livroRequestDTO.quantidade());
-        livro.setStatus(livroRequestDTO.status());
         livro.setCategoria(categoria);
         livro.setDescricao(livroRequestDTO.descricao());
 
         livro = livroRepository.save(livro);
 
-        return new LivroResponseDTO(livro.getId(), livro.getNome(), livro.getAutor(), livro.getQuantidade(), livro.getStatus(), livro.getCategoria().getNome(), livro.getDescricao());
+        return new LivroResponseDTO(livro.getId(), livro.getNome(), livro.getAutor(), livro.getQuantidade(), livro.getQuantidadeDisponivel(), livro.getCategoria().getNome(), livro.getDescricao());
     }
 
     public ResponseEntity<Void> removerLivro(Long id) {
@@ -96,7 +95,7 @@ public class LivroService {
                 livro.getNome(),
                 livro.getAutor(),
                 livro.getQuantidade(),
-                livro.getStatus(),
+                livro.getQuantidadeDisponivel(),
                 livro.getCategoria().getNome(),
                 livro.getDescricao()))
                 .toList();
@@ -115,7 +114,7 @@ public class LivroService {
                         livro.getNome(),
                         livro.getAutor(),
                         livro.getQuantidade(),
-                        livro.getStatus(),
+                        livro.getQuantidadeDisponivel(),
                         livro.getCategoria().getNome(),
                         livro.getDescricao()))
                 .toList();
@@ -126,5 +125,4 @@ public class LivroService {
 
         return livros;
     }
-
 }

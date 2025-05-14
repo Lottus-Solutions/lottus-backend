@@ -38,4 +38,9 @@ public class GlobalExceptionHandler {
     public ResponseEntity<String> handleEmprestimoAtivo(EmprestimoAtivoException e){
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
     }
+
+    @ExceptionHandler(LivroIndisponivelException.class)
+    public ResponseEntity<String> handleLivroInvalidoException(LivroIndisponivelException e) {
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+    }
 }

@@ -18,7 +18,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
-import java.util.stream.Collectors;
 
 @Service
 @Getter @Setter
@@ -66,32 +65,33 @@ public class EmprestimoServiceImpl implements EmprestimoService{
         }
     }
 
-
-
     @Override
     public Optional<Emprestimo> fazerEmprestimo(RequestEmprestimo requestEmprestimo) {
-        Optional<Aluno> aluno = alunoRepository.findByMatricula(requestEmprestimo.matriculaAluno());
-        Optional<Livro> livro = livroRepository.findById(requestEmprestimo.fk_livro());
+        Aluno aluno = alunoRepository.findByMatricula(requestEmprestimo.matriculaAluno())
+                .orElseThrow(AlunoNaoEncontradoException::new);
+        Livro livro = livroRepository.findById(requestEmprestimo.fk_livro())
+                .orElseThrow(LivroNaoEncontradoException::new);
+
+        if (livro.getQuantidadeDisponivel() == 0) {
+            throw new LivroIndisponivelException();
+        }
+
+        if (!aluno.podeFazerEmprestimo()) {
+            throw new EmprestimoAtivoException();
+        }
 
         Emprestimo novoEmprestimo = new Emprestimo();
 
-        if(aluno.isPresent() && livro.isPresent()){
+        novoEmprestimo.setAluno(aluno);
+        novoEmprestimo.setLivro(livro);
+        novoEmprestimo.setDataEmprestimo(requestEmprestimo.dataEmprestimo());
+        novoEmprestimo.setDataDevolucaoPrevista(requestEmprestimo.dataEmprestimo().plusDays(qtdDias));
+        novoEmprestimo.setStatusEmprestimo(StatusEmprestimo.ATIVO);
 
-            if (aluno.get().podeFazerEmpresitmo()) {
-                novoEmprestimo.setAluno(aluno.get());
-                novoEmprestimo.setLivro(livro.get());
-                novoEmprestimo.setDataEmprestimo(requestEmprestimo.dataEmprestimo());
-                novoEmprestimo.setDataDevolucaoPrevista(requestEmprestimo.dataEmprestimo().plusDays(qtdDias));
-                novoEmprestimo.setStatusEmprestimo(StatusEmprestimo.ATIVO);
-            } else {
-                throw new EmprestimoAtivoException();
-            }
+        livro.setQuantidadeDisponivel(livro.getQuantidadeDisponivel() - 1);
+        livroRepository.save(livro);
 
-        } else{
-            throw  new MultiClassNotFundException(aluno, livro);
-        }
-
-            return Optional.of(emprestimoRepository.save(novoEmprestimo));
+        return Optional.of(emprestimoRepository.save(novoEmprestimo));
     }
 
     @Override
@@ -99,7 +99,7 @@ public class EmprestimoServiceImpl implements EmprestimoService{
         Optional<Emprestimo> emprestimoOpt = emprestimoRepository.findById(emprestimoId);
 
         if(emprestimoOpt.isEmpty()){
-            throw  new EmprestimoNaoEncontradoException();
+            throw new EmprestimoNaoEncontradoException();
         }
 
         Emprestimo emprestimo = emprestimoOpt.get();
@@ -112,6 +112,9 @@ public class EmprestimoServiceImpl implements EmprestimoService{
         if (emprestimo.getAluno().getQtdLivrosLidos() > 4) {
             alunoService.atualizarPontuacao(emprestimo.getAluno());
         }
+
+        emprestimo.getLivro().setQuantidadeDisponivel(emprestimo.getLivro().getQuantidadeDisponivel() + 1);
+        livroRepository.save(emprestimo.getLivro());
 
         return true;
     }

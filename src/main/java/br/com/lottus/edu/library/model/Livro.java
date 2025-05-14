@@ -1,6 +1,7 @@
 package br.com.lottus.edu.library.model;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.Min;
 
 @Entity
 @Table(name = "livro")
@@ -11,8 +12,10 @@ public class Livro {
 
     private String nome;
     private String autor;
+
+    @Min(value = 1, message = "É necessário ter pelo menos 1 livro para realizar o cadastro!")
     private Integer quantidade;
-    private Boolean status;
+    private Integer quantidadeDisponivel;
 
     @Column(length = 500)
     private String descricao;
@@ -23,12 +26,12 @@ public class Livro {
 
     public Livro() {}
 
-    public Livro(String nome, String autor, Categoria categoria, Boolean status, Integer quantidade) {
+    public Livro(String nome, String autor, Categoria categoria, Integer quantidade, String descricao) {
         this.nome = nome;
         this.autor = autor;
         this.categoria = categoria;
-        this.status = status;
         this.quantidade = quantidade;
+        this.descricao = descricao;
     }
 
     public Long getId() {
@@ -63,20 +66,20 @@ public class Livro {
         this.categoria = categoria;
     }
 
-    public Boolean getStatus() {
-        return status;
-    }
-
-    public void setStatus(Boolean status) {
-        this.status = status;
-    }
-
     public Integer getQuantidade() {
         return quantidade;
     }
 
     public void setQuantidade(Integer quantidade) {
         this.quantidade = quantidade;
+    }
+
+    public Integer getQuantidadeDisponivel() {
+        return quantidadeDisponivel;
+    }
+
+    public void setQuantidadeDisponivel(Integer quantidadeDisponivel) {
+        this.quantidadeDisponivel = quantidadeDisponivel;
     }
 
     public String getDescricao() {
