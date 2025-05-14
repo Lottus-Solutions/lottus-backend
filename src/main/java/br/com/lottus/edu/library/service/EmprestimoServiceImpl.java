@@ -18,6 +18,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 @Getter @Setter
@@ -44,7 +45,7 @@ public class EmprestimoServiceImpl implements EmprestimoService{
     private LivroRepository livroRepository;
 
     @Autowired
-    private AlunoServiceImpl alunoService;
+    private AlunoService alunoService;
 
     @Override
     public List<Emprestimo> listarEmprestimos() {
@@ -65,6 +66,8 @@ public class EmprestimoServiceImpl implements EmprestimoService{
         }
     }
 
+
+
     @Override
     public Optional<Emprestimo> fazerEmprestimo(RequestEmprestimo requestEmprestimo) {
         Aluno aluno = alunoRepository.findByMatricula(requestEmprestimo.matriculaAluno())
@@ -79,6 +82,14 @@ public class EmprestimoServiceImpl implements EmprestimoService{
         if (!aluno.podeFazerEmprestimo()) {
             throw new EmprestimoAtivoException();
         }
+
+        List<Emprestimo> emprestimosAtivos = emprestimoRepository.findAllByStatusEmprestimo(StatusEmprestimo.ATIVO);
+
+        emprestimosAtivos.forEach(e -> {
+            if(e.getAluno().getMatricula().equals(requestEmprestimo.matriculaAluno())) {
+                throw new AlunoComEmprestimoException();
+            }
+        });
 
         Emprestimo novoEmprestimo = new Emprestimo();
 
@@ -120,7 +131,7 @@ public class EmprestimoServiceImpl implements EmprestimoService{
     }
 
     @Override
-    public List<Emprestimo> buscarEmprestimos(Long livroId, String matricula, Boolean apenasAtrasados) {
+    public List<Emprestimo> buscarEmprestimos(Long livroId, Long matricula, Boolean apenasAtrasados) {
 
         Optional<Livro> livroOpt = livroId != null ? livroRepository.findById(livroId) : Optional.empty();
         Optional<Aluno> alunoOpt = matricula != null ? alunoRepository.findByMatricula(matricula) : Optional.empty();
@@ -173,7 +184,7 @@ public class EmprestimoServiceImpl implements EmprestimoService{
     }
 
     @Override
-    public List<Emprestimo> buscarHistoricoAluno(String matricula) {
+    public List<Emprestimo> buscarHistoricoAluno(Long matricula) {
         Aluno aluno = alunoRepository.findById(matricula)
                 .orElseThrow(AlunoNaoEncontradoException::new);
 

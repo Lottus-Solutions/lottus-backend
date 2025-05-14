@@ -23,7 +23,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.Map;
 import java.util.Optional;
 
-@Tag(name = "Autenticação", description = "Endpoints para autenticação de usuários")
+@Tag(name = "Autenticação", description = "Endpoints para cadastro e autenticação de usuários")
 @RestController
 @RequestMapping("/auth")
 @RequiredArgsConstructor
@@ -35,7 +35,7 @@ public class AuthController {
     private final AuthenticationManager authenticationManager;
     private final CustomUserDetailsService userDetailsService;
 
-    @Operation(summary = "Registra um novo usuário")
+    @Operation(summary = "Registra um novo usuário", description = "Retorna o usuário cadastrado sem a senha(senha cadastrada criptografada)")
     @PostMapping("/register")
     public ResponseEntity<Usuario> registrarUsuario(@RequestBody Usuario usuario) {
         // Encodar a senha antes de salvar
@@ -44,7 +44,7 @@ public class AuthController {
         return ResponseEntity.status(HttpStatus.CREATED).body(novoUsuario);
     }
 
-    @Operation(summary = "Realiza login e retorna um token JWT")
+    @Operation(summary = "Realiza login do usuário", description = "Retorna o token JWT do usuário")
     @PostMapping("/login")
     public ResponseEntity<AuthResponse> login(@RequestBody AuthRequest request) {
         try {
@@ -64,7 +64,7 @@ public class AuthController {
         }
     }
     
-    @Operation(summary = "Verifica se um token é válido")
+    @Operation(summary = "Verifica se um token é válido", description = "Retorna informações do usuário se o token for válido")
     @PostMapping("/validate")
     public ResponseEntity<Map<String, Object>> validateToken(@RequestHeader("Authorization") String authHeader) {
         // Extrair o token do cabeçalho

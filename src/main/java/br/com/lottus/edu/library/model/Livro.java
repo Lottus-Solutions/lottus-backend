@@ -10,7 +10,9 @@ public class Livro {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Column(unique = true)
     private String nome;
+
     private String autor;
 
     @Min(value = 1, message = "É necessário ter pelo menos 1 livro para realizar o cadastro!")

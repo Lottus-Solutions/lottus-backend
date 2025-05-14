@@ -28,7 +28,7 @@ public class UsuarioController {
         this.usuarioService = usuarioService;
     }
 
-    @Operation(summary = "Obtém os dados do usuário logado")
+    @Operation(summary = "Obtém os dados do usuário logado", description = "retorna as informações do usuario com excessão da senha")
     @GetMapping("/me")
     public ResponseEntity<Usuario> getUsuarioLogado() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();

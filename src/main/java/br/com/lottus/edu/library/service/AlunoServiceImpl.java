@@ -43,12 +43,11 @@ public class AlunoServiceImpl implements AlunoService{
         return true;
     }
 
-    public Boolean editarAluno(String matricula, AlunoDTO alunodto) {
+    public Boolean editarAluno(Long matricula, AlunoDTO alunodto) {
         // Busca o aluno existente pelo ID
         Aluno alunoExistente = alunoRepository.findByMatricula(matricula)
                 .orElseThrow(AlunoNaoEncontradoException::new);
 
-        // Atualiza os dados do aluno
         if(alunodto.getNome() != null){
             alunoExistente.setNome(alunodto.getNome());
         }
@@ -61,8 +60,6 @@ public class AlunoServiceImpl implements AlunoService{
             alunoExistente.setQtdLivrosLidos(alunodto.getQtd_livros_lidos());
         }
 
-
-        // Se a turma for modificada, verificamos a existência da nova turma
         if (alunodto.getTurma_id() != null) {
             Turma turma = turmaRepository.findById(alunodto.getTurma_id())
                     .orElseThrow(TurmaNaoEncontradaException::new);
@@ -82,7 +79,7 @@ public class AlunoServiceImpl implements AlunoService{
     }
 
     @Override
-    public Optional<Aluno> buscarAlunoPorMatricula(String matricula) {
+    public Optional<Aluno> buscarAlunoPorMatricula(Long matricula) {
         return alunoRepository.findByMatricula(matricula);
     }
 
@@ -124,4 +121,20 @@ public class AlunoServiceImpl implements AlunoService{
             alunoRepository.save(aluno);
         }
     }
+
+    public List<Aluno> listarAlunosPorNome(String nome) {
+        List<Aluno> alunos = alunoRepository.findAllByNomeContainingIgnoreCase(nome);
+
+        if (alunos.isEmpty()) {
+            throw new NenhumAlunoEncotradoException();
+        }
+
+        return alunos;
+    }
+
+    public List<Turma> listarTurmas(){
+        return turmaRepository.findAll();
+    }
 }
+
+

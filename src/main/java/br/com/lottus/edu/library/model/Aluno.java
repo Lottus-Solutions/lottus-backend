@@ -12,8 +12,8 @@ import java.util.List;
 public class Aluno {
 
     @Id
-    @Column(nullable = false, unique = true)
-    private String matricula;
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long matricula;
 
     private String nome;
     private Double qtdBonus;
@@ -49,11 +49,11 @@ public class Aluno {
         this.qtdLivrosLidos = qtdLivrosLidos;
     }
 
-    public String getMatricula() {
+    public Long getMatricula() {
         return matricula;
     }
 
-    public void setMatricula(String matricula) {
+    public void setMatricula(Long matricula) {
         this.matricula = matricula;
     }
 
