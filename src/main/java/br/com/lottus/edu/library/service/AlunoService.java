@@ -66,4 +66,8 @@ public interface AlunoService {
 
     List<Turma> listarTurmas();
 
+    void atualizarPontuacao(Aluno aluno);
+
+    void atualizarLivrosLidos(Aluno aluno);
+
 }

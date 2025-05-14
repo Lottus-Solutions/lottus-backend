@@ -20,4 +20,5 @@ public interface EmprestimoRepository extends JpaRepository<Emprestimo, Long> {
     List<Emprestimo> findByLivro(Livro livro);
     List<Emprestimo> findAllByAluno(Aluno aluno);
     Optional<Emprestimo> findByAluno(Aluno aluno);
+
 }

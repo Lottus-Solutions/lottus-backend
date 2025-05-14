@@ -48,7 +48,7 @@ public class EmprestimoServiceImpl implements EmprestimoService{
     private LivroRepository livroRepository;
 
     @Autowired
-    private AlunoServiceImpl alunoService;
+    private AlunoService alunoService;
 
     @Override
     public List<Emprestimo> listarEmprestimos() {
