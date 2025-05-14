@@ -48,7 +48,16 @@ public class EmprestimoServiceImpl implements EmprestimoService{
 
     @Override
     public List<Emprestimo> listarEmprestimos() {
-        return emprestimoRepository.findAll();
+        List<Emprestimo> emprestimos = emprestimoRepository.findAll();
+        List<Emprestimo> emprestimosAtivosAtrasados = new ArrayList<>();
+
+        for (Emprestimo emprestimo : emprestimos) {
+            if (emprestimo.getStatusEmprestimo() == StatusEmprestimo.ATIVO || emprestimo.getStatusEmprestimo() == StatusEmprestimo.ATRASADO) {
+                emprestimosAtivosAtrasados.add(emprestimo);
+            }
+        }
+
+        return emprestimosAtivosAtrasados;
     }
 
     @Override

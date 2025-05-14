@@ -17,7 +17,6 @@ public class Emprestimo {
 
     @ManyToOne
     @JoinColumn(name= "aluno_id", nullable = false)
-    @JsonBackReference
     private Aluno aluno;
 
     @ManyToOne
