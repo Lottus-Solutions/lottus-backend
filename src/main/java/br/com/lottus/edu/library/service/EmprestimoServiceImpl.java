@@ -9,8 +9,6 @@ import br.com.lottus.edu.library.model.StatusEmprestimo;
 import br.com.lottus.edu.library.repository.AlunoRepository;
 import br.com.lottus.edu.library.repository.EmprestimoRepository;
 import br.com.lottus.edu.library.repository.LivroRepository;
-import br.com.lottus.edu.library.service.strategy.EmprestimoFiltroStrategy;
-import br.com.lottus.edu.library.service.strategy.EmprestimoFiltroStrategyFactory;
 import br.com.lottus.edu.library.utils.LimitedList;
 import lombok.Getter;
 import lombok.Setter;
@@ -131,30 +129,22 @@ public class EmprestimoServiceImpl implements EmprestimoService{
     }
 
     @Override
-    public List<Emprestimo> buscarEmprestimos(Long livroId, Long matricula, Boolean apenasAtrasados) {
+    public List<Emprestimo> buscarEmprestimos(String valor) {
 
-        Optional<Livro> livroOpt = livroId != null ? livroRepository.findById(livroId) : Optional.empty();
-        Optional<Aluno> alunoOpt = matricula != null ? alunoRepository.findByMatricula(matricula) : Optional.empty();
-
-        if(livroId != null && livroOpt.isEmpty()){
-            return Collections.emptyList();
-        }
-
-        if(matricula != null && alunoOpt.isEmpty()){
-            return Collections.emptyList();
+        if(valor == null || valor.isEmpty()){
+            return emprestimoRepository.findAll();
         }
 
         List<Emprestimo> todosEmprestimos = emprestimoRepository.findAll();
 
         boolean filterAtrasados = apenasAtrasados != null && apenasAtrasados;
 
-        EmprestimoFiltroStrategy estrategia = EmprestimoFiltroStrategyFactory.criarEstrategia(
-                livroOpt.orElse(null),
-                alunoOpt.orElse(null),
-                filterAtrasados // Passa o valor booleano
-        );
+        if(filterAtrasados){
 
-        return estrategia.filtrar(todosEmprestimos);
+            return emprestimoRepository.findAtrasadosByAlunoNomeOrLivroNomeContainingIgnoreCase(valor);
+        }
+
+       return emprestimoRepository.findByAlunoNomeOrLivroNomeContainingIgnoreCase(valor);
     }
 
 
@@ -207,12 +197,12 @@ public class EmprestimoServiceImpl implements EmprestimoService{
 
     @Override
     public List<Emprestimo> filtrarEmprestimosAtrasados() {
-        setApenasAtrasados(true);
-        List<Emprestimo> todosEmprestimos = emprestimoRepository.findAll();
-        EmprestimoFiltroStrategy estrategiaAtrasados = EmprestimoFiltroStrategyFactory.criarEstrategia(
-                null, null, true
-        );
-        return estrategiaAtrasados.filtrar(todosEmprestimos);
+        setApenasAtrasados(!getApenasAtrasados());
+
+        if(!getApenasAtrasados()){
+            return emprestimoRepository.findAll();
+        }
+       return emprestimoRepository.findAllByStatusEmprestimo(StatusEmprestimo.ATRASADO);
     }
 
     public void resetarStatus() {
