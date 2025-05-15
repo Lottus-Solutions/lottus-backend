@@ -7,6 +7,7 @@ import br.com.lottus.edu.library.exception.LivroNaoEncontradoException;
 import br.com.lottus.edu.library.exception.NenhumLivroEncontradoException;
 import br.com.lottus.edu.library.model.Categoria;
 import br.com.lottus.edu.library.model.Livro;
+import br.com.lottus.edu.library.model.StatusLivro;
 import br.com.lottus.edu.library.repository.CategoriaRepository;
 import br.com.lottus.edu.library.repository.LivroRepository;
 import org.slf4j.Logger;
@@ -50,6 +51,7 @@ public class LivroService {
         livro.setAutor(livroRequestDTO.autor());
         livro.setQuantidade(livroRequestDTO.quantidade());
         livro.setQuantidadeDisponivel(livroRequestDTO.quantidade());
+        livro.setStatus(StatusLivro.DISPONIVEL);
         livro.setCategoria(categoria);
         livro.setDescricao(livroRequestDTO.descricao());
         livro = livroRepository.save(livro);

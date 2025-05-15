@@ -18,6 +18,7 @@ public class Livro {
     @Min(value = 1, message = "É necessário ter pelo menos 1 livro para realizar o cadastro!")
     private Integer quantidade;
     private Integer quantidadeDisponivel;
+    private StatusLivro status;
 
     @Column(length = 500)
     private String descricao;
@@ -28,7 +29,7 @@ public class Livro {
 
     public Livro() {}
 
-    public Livro(String nome, String autor, Categoria categoria, Integer quantidade, String descricao) {
+    public Livro(String nome, String autor, Categoria categoria, Integer quantidade, StatusLivro status, String descricao) {
         this.nome = nome;
         this.autor = autor;
         this.categoria = categoria;
@@ -82,6 +83,14 @@ public class Livro {
 
     public void setQuantidadeDisponivel(Integer quantidadeDisponivel) {
         this.quantidadeDisponivel = quantidadeDisponivel;
+    }
+
+    public StatusLivro getStatus() {
+        return status;
+    }
+
+    public void setStatus(StatusLivro status) {
+        this.status = status;
     }
 
     public String getDescricao() {
