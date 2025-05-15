@@ -206,11 +206,8 @@ public class EmprestimoServiceImpl implements EmprestimoService{
 
     @Override
     public List<Emprestimo> filtrarEmprestimosAtrasados() {
-        setApenasAtrasados(!getApenasAtrasados());
+        setApenasAtrasados(true);
 
-        if(!getApenasAtrasados()){
-            return emprestimoRepository.findAll();
-        }
        return emprestimoRepository.findAllByStatusEmprestimo(StatusEmprestimo.ATRASADO);
     }
 
