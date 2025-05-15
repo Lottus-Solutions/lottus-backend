@@ -45,11 +45,10 @@ public interface EmprestimoService {
     /**
      * Buscar empréstimos pelo valor informado (pode ser ID do aluno, ID do livro ou outro critério).
      *
-     * @param livroId o id do livro a ser buscado.
-     * @param matricula a matricula do aluno a ser buscado.
+     * @param valor o valor generico para busca do emprestimo.
      * @return Lista de empréstimos correspondentes ao critério de busca.
      */
-    List<Emprestimo> buscarEmprestimos(Long livroId, Long matricula, Boolean apenasAtrasados);
+    List<Emprestimo> buscarEmprestimos(String valor);
 
     /**
      * Buscar o histórico de empréstimos de um livro específico.

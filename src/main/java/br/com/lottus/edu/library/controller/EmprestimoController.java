@@ -97,13 +97,9 @@ public class EmprestimoController {
 
     @GetMapping("/buscar")
     public ResponseEntity<List<Emprestimo>> buscarEmprestimos(
-            @RequestParam(required = false) Long livroId,
-            @RequestParam(required = false) Long matricula,
-            @RequestParam(required = false, defaultValue = "false") Boolean apenasAtrasados) {
+            @RequestParam(required = false) String valor){
 
-        logger.info("Buscando empréstimos - Livro ID: {}, Matrícula: {}, Apenas Atrasados: {}", livroId, matricula, apenasAtrasados);
-
-        List<Emprestimo> emprestimos = emprestimoService.buscarEmprestimos(livroId, matricula, apenasAtrasados);
+        List<Emprestimo> emprestimos = emprestimoService.buscarEmprestimos(valor);
 
         return ResponseEntity.ok(emprestimos);
     }

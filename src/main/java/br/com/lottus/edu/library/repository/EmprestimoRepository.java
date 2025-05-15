@@ -21,4 +21,14 @@ public interface EmprestimoRepository extends JpaRepository<Emprestimo, Long> {
     List<Emprestimo> findAllByAluno(Aluno aluno);
     Optional<Emprestimo> findByAluno(Aluno aluno);
 
+    @Query("SELECT e FROM Emprestimo e WHERE " +
+            "LOWER(e.aluno.nome) LIKE LOWER(CONCAT('%', :valor, '%')) OR " +
+            "LOWER(e.livro.nome) LIKE LOWER(CONCAT('%', :valor, '%'))")
+    List<Emprestimo> findByAlunoNomeOrLivroNomeContainingIgnoreCase(String valor);
+
+    @Query("SELECT e FROM Emprestimo e WHERE " +
+            "e.statusEmprestimo = br.com.lottus.edu.library.model.StatusEmprestimo.ATRASADO AND " + // Filtra por status ATRASADO
+            "(LOWER(e.aluno.nome) LIKE LOWER(CONCAT('%', :valor, '%')) OR " +
+            "LOWER(e.livro.nome) LIKE LOWER(CONCAT('%', :valor, '%')))")
+    List<Emprestimo> findAtrasadosByAlunoNomeOrLivroNomeContainingIgnoreCase(String valor);
 }
