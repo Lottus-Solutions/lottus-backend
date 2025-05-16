@@ -4,6 +4,7 @@ import br.com.lottus.edu.library.exception.TurmaJaCadastradaException;
 import br.com.lottus.edu.library.exception.TurmaNaoEncontradaException;
 import br.com.lottus.edu.library.model.Turma;
 import br.com.lottus.edu.library.repository.TurmaRepository;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -36,13 +37,26 @@ public class TurmaService {
         return turmaRepository.save(turma);
     }
 
-    public void removerTurma(Long id) {
+    public ResponseEntity<Void> removerTurma(Long id) {
         Turma turma = turmaRepository.findById(id)
                 .orElseThrow(TurmaNaoEncontradaException::new);
 
         turmaRepository.delete(turma);
+        return ResponseEntity.noContent().build();
     }
 
+    public Turma editarTurma(Long matricula, Turma turmaRequest) {
+        Turma turma = turmaRepository.findById(matricula)
+                .orElseThrow(TurmaNaoEncontradaException::new);
 
+        List<Turma> turmas = turmaRepository.findAll();
+
+        if (turmas.stream().anyMatch(t -> t.getSerie().equalsIgnoreCase(turmaRequest.getSerie()))) {
+            throw new TurmaJaCadastradaException();
+        }
+
+        turma.setSerie(turmaRequest.getSerie());
+        return turmaRepository.save(turma);
+    }
 
 }
