@@ -19,7 +19,6 @@ public class TurmaService {
     }
 
     public List<Turma> listarTurmas() {
-
         List<Turma> turmas = turmaRepository.findAll();
 
         if (turmas.isEmpty()) {
@@ -37,12 +36,11 @@ public class TurmaService {
         return turmaRepository.save(turma);
     }
 
-    public ResponseEntity<Void> removerTurma(Long id) {
+    public void removerTurma(Long id) {
         Turma turma = turmaRepository.findById(id)
                 .orElseThrow(TurmaNaoEncontradaException::new);
 
         turmaRepository.delete(turma);
-        return ResponseEntity.noContent().build();
     }
 
     public Turma editarTurma(Long matricula, Turma turmaRequest) {
