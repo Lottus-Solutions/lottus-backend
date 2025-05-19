@@ -29,7 +29,7 @@ public class TurmaService {
     }
 
     public Turma adicionarTurma(Turma turma) {
-        if (turmaRepository.findBySerieIgnoreCase(turma.getSerie())) {
+        if (turmaRepository.existsBySerieIgnoreCase(turma.getSerie())) {
             throw new TurmaJaCadastradaException();
         }
 
