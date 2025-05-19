@@ -16,34 +16,34 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Function;
 
+
 @Component
 public class JwtUtil {
     @Value("${jwt.secret}")
     private String secret;
     
-    @Value("${jwt.expiration}")
-    private Long expiration;
+    @Value("${jwt.acess.token.expiration}")
+    private Long acessTokenExpiration;
 
     private Key getSigningKey() {
         byte[] keyBytes = secret.getBytes(StandardCharsets.UTF_8);
         return Keys.hmacShaKeyFor(keyBytes);
     }
 
-    public String generateToken(Usuario usuario) {
+    public String generateAcessToken(Usuario usuario) {
         Map<String, Object> claims = new HashMap<>();
         claims.put("userId", usuario.getId());
         claims.put("nome", usuario.getNome());
-        claims.put("email", usuario.getEmail());
 
-        return createToken(claims, usuario.getEmail());
+        return createToken(claims, usuario.getEmail(), acessTokenExpiration);
     }
     
-    private String createToken(Map<String, Object> claims, String subject) {
+    private String createToken(Map<String, Object> claims, String subject, Long expirationTime) {
         return Jwts.builder()
                 .setClaims(claims)
                 .setSubject(subject)
                 .setIssuedAt(new Date())
-                .setExpiration(new Date(System.currentTimeMillis() + expiration))
+                .setExpiration(new Date(System.currentTimeMillis() + expirationTime))
                 .signWith(getSigningKey(), SignatureAlgorithm.HS512)
                 .compact();
     }
@@ -66,6 +66,16 @@ public class JwtUtil {
     }
 
     public Long extractUserId(String token) {
+        Object userIdObj = extractClaim(token, claims -> claims.get("userId"));
+
+        if(userIdObj instanceof Integer){
+            return ((Integer) userIdObj).longValue();
+        }
+
+        if(userIdObj instanceof Long){
+            return (Long)userIdObj;
+        }
+
         return extractClaim(token, claims -> claims.get("userId", Long.class));
     }
     
@@ -74,7 +84,12 @@ public class JwtUtil {
     }
     
     private Boolean isTokenExpired(String token) {
-        return extractExpiration(token).before(new Date());
+
+        try{
+            return extractExpiration(token).before(new Date());
+        } catch (Exception e) {
+            return true;
+        }
     }
     
     public Boolean validateToken(String token, UserDetails userDetails) {
