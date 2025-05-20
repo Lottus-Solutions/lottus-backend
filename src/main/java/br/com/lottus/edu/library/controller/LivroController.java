@@ -54,9 +54,9 @@ public class LivroController {
     }
 
     @Operation(summary = "busca livros pelo nome", description = "Retorna uma lista de livros com o nome informado")
-    @GetMapping("/buscar/{nome}")
-    public ResponseEntity<List<LivroResponseDTO>> buscarLivroPorNome(@PathVariable String nome) {
-        List<LivroResponseDTO> livros = livroService.buscarLivroPorNome(nome);
+    @GetMapping("/buscar/{valor}")
+    public ResponseEntity<List<LivroResponseDTO>> buscarLivro(@PathVariable String valor) {
+        List<LivroResponseDTO> livros = livroService.buscarLivro(valor);
         return ResponseEntity.ok(livros);
     }
 
