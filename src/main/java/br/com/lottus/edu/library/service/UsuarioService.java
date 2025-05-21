@@ -1,6 +1,8 @@
 package br.com.lottus.edu.library.service;
-
+import br.com.lottus.edu.library.dto.RequestSolicitarResetSenha;
+import br.com.lottus.edu.library.dto.ResponseSolicitarReset;
 import br.com.lottus.edu.library.model.Usuario;
+import com.sendgrid.Response;
 
 public interface UsuarioService {
 
@@ -37,5 +39,28 @@ public interface UsuarioService {
      * */
     Usuario buscarPorEmail(String email);
 
+    /**
+     * Renova o semestre da base de dados.
+     *
+     *
+     */
     void renovarSemestre();
+
+
+    /**
+     * Soliciar o reset de senha do usuário
+     *
+     * @param email o email do usuário
+     * @return dto de resposta com link para reset de senha e token para validação
+     */
+    ResponseSolicitarReset solicitarResetSenha(String email);
+
+    /**
+     * Reseta a senha do usuário
+     *
+     * @param token o token UUID gerado para o reset
+     * @param novaSenha a nova senha do usuário
+     * @return true se o reset for bem-sucedido, false caso contrário
+     */
+    Boolean resetarSenha(String token, String novaSenha);
 }
