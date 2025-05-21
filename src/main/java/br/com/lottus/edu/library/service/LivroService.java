@@ -7,6 +7,7 @@ import br.com.lottus.edu.library.exception.LivroNaoEncontradoException;
 import br.com.lottus.edu.library.exception.NenhumLivroEncontradoException;
 import br.com.lottus.edu.library.model.Categoria;
 import br.com.lottus.edu.library.model.Livro;
+import br.com.lottus.edu.library.model.StatusLivro;
 import br.com.lottus.edu.library.repository.CategoriaRepository;
 import br.com.lottus.edu.library.repository.LivroRepository;
 import org.slf4j.Logger;
@@ -36,6 +37,7 @@ public class LivroService {
                         livro.getAutor(),
                         livro.getQuantidade(),
                         livro.getQuantidadeDisponivel(),
+                        livro.getStatus(),
                         livro.getCategoria().getNome(),
                         livro.getDescricao()))
                 .toList();
@@ -50,19 +52,20 @@ public class LivroService {
         livro.setAutor(livroRequestDTO.autor());
         livro.setQuantidade(livroRequestDTO.quantidade());
         livro.setQuantidadeDisponivel(livroRequestDTO.quantidade());
+        livro.setStatus(StatusLivro.DISPONIVEL);
         livro.setCategoria(categoria);
         livro.setDescricao(livroRequestDTO.descricao());
         livro = livroRepository.save(livro);
 
-        return new LivroResponseDTO(livro.getId(), livro.getNome(), livro.getAutor(), livro.getQuantidade(), livro.getQuantidadeDisponivel(), livro.getCategoria().getNome(), livro.getDescricao());
+        return new LivroResponseDTO(livro.getId(), livro.getNome(), livro.getAutor(), livro.getQuantidade(), livro.getQuantidadeDisponivel(), livro.getStatus(), livro.getCategoria().getNome(), livro.getDescricao());
     }
 
     public LivroResponseDTO atualizarLivro(LivroRequestDTO livroRequestDTO, Long id) {
         Livro livro = livroRepository.findById(id)
-                .orElseThrow(() -> new LivroNaoEncontradoException());
+                .orElseThrow(LivroNaoEncontradoException::new);
 
         Categoria categoria = categoriaRepository.findById(livroRequestDTO.categoriaId())
-                .orElseThrow(() -> new CategoriaNaoEncontradaException());
+                .orElseThrow(CategoriaNaoEncontradaException::new);
 
         livro.setNome(livroRequestDTO.nome());
         livro.setAutor(livroRequestDTO.autor());
@@ -72,7 +75,7 @@ public class LivroService {
 
         livro = livroRepository.save(livro);
 
-        return new LivroResponseDTO(livro.getId(), livro.getNome(), livro.getAutor(), livro.getQuantidade(), livro.getQuantidadeDisponivel(), livro.getCategoria().getNome(), livro.getDescricao());
+        return new LivroResponseDTO(livro.getId(), livro.getNome(), livro.getAutor(), livro.getQuantidade(), livro.getQuantidadeDisponivel(), livro.getStatus(), livro.getCategoria().getNome(), livro.getDescricao());
     }
 
     public ResponseEntity<Void> removerLivro(Long id) {
@@ -93,6 +96,7 @@ public class LivroService {
                 livro.getAutor(),
                 livro.getQuantidade(),
                 livro.getQuantidadeDisponivel(),
+                livro.getStatus(),
                 livro.getCategoria().getNome(),
                 livro.getDescricao()))
                 .toList();
@@ -112,6 +116,7 @@ public class LivroService {
                         livro.getAutor(),
                         livro.getQuantidade(),
                         livro.getQuantidadeDisponivel(),
+                        livro.getStatus(),
                         livro.getCategoria().getNome(),
                         livro.getDescricao()))
                 .toList();

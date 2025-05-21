@@ -3,6 +3,8 @@ package br.com.lottus.edu.library.model;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Min;
 
+import java.util.List;
+
 @Entity
 @Table(name = "livro")
 public class Livro {
@@ -19,6 +21,9 @@ public class Livro {
     private Integer quantidade;
     private Integer quantidadeDisponivel;
 
+    @Enumerated(EnumType.STRING)
+    private StatusLivro status;
+
     @Column(length = 500)
     private String descricao;
 
@@ -26,9 +31,12 @@ public class Livro {
     @JoinColumn(name = "fk_categoria", nullable = false)
     private Categoria categoria;
 
+    @OneToMany(mappedBy = "livro", cascade = CascadeType.REMOVE, orphanRemoval = true)
+    private List<Emprestimo> emprestimos;
+
     public Livro() {}
 
-    public Livro(String nome, String autor, Categoria categoria, Integer quantidade, String descricao) {
+    public Livro(String nome, String autor, Categoria categoria, Integer quantidade, StatusLivro status, String descricao) {
         this.nome = nome;
         this.autor = autor;
         this.categoria = categoria;
@@ -82,6 +90,14 @@ public class Livro {
 
     public void setQuantidadeDisponivel(Integer quantidadeDisponivel) {
         this.quantidadeDisponivel = quantidadeDisponivel;
+    }
+
+    public StatusLivro getStatus() {
+        return status;
+    }
+
+    public void setStatus(StatusLivro status) {
+        this.status = status;
     }
 
     public String getDescricao() {
