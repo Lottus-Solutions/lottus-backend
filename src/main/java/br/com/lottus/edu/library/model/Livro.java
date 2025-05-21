@@ -3,6 +3,8 @@ package br.com.lottus.edu.library.model;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Min;
 
+import java.util.List;
+
 @Entity
 @Table(name = "livro")
 public class Livro {
@@ -18,6 +20,8 @@ public class Livro {
     @Min(value = 1, message = "É necessário ter pelo menos 1 livro para realizar o cadastro!")
     private Integer quantidade;
     private Integer quantidadeDisponivel;
+
+    @Enumerated(EnumType.STRING)
     private StatusLivro status;
 
     @Column(length = 500)
@@ -26,6 +30,9 @@ public class Livro {
     @ManyToOne
     @JoinColumn(name = "fk_categoria", nullable = false)
     private Categoria categoria;
+
+    @OneToMany(mappedBy = "livro", cascade = CascadeType.REMOVE, orphanRemoval = true)
+    private List<Emprestimo> emprestimos;
 
     public Livro() {}
 
