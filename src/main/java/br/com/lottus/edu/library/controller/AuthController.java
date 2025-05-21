@@ -1,7 +1,6 @@
 package br.com.lottus.edu.library.controller;
 
-import br.com.lottus.edu.library.dto.AuthRequest;
-import br.com.lottus.edu.library.dto.AuthResponse;
+import br.com.lottus.edu.library.dto.*;
 import br.com.lottus.edu.library.model.Usuario;
 import br.com.lottus.edu.library.repository.UsuarioRepository;
 import br.com.lottus.edu.library.security.CustomUserDetailsService;
@@ -86,5 +85,23 @@ public class AuthController {
         
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
                 .body(Map.of("valid", false));
+    }
+
+    @PostMapping("/esqueci-senha")
+    @Operation(summary = "Solicita reset de senha", description = "Retorna um link para resetar a senha e token privado identificador para validaçao do metodo")
+    public ResponseEntity<ResponseSolicitarReset> solicitarResetSenha(@RequestBody RequestSolicitarResetSenha request){
+
+        String email = request.email();
+
+        return ResponseEntity.ok(usuarioService.solicitarResetSenha(email));
+    }
+
+    @PutMapping("/resetar-senha")
+    @Operation(summary = "Reseta a senha do usuario", description = "Retorna o resultado da operação com true ou false")
+    public ResponseEntity<Boolean> resetarSenha(@RequestBody @Valid RequestNovaSenha requestNovaSenha){
+
+        String senha = passwordEncoder.encode(requestNovaSenha.senha());
+
+        return ResponseEntity.ok(usuarioService.resetarSenha(requestNovaSenha.token(), senha));
     }
 }
