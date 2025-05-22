@@ -1,6 +1,7 @@
 package br.com.lottus.edu.library.repository;
 
 import br.com.lottus.edu.library.model.Livro;
+import org.hibernate.query.Page;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;

@@ -3,10 +3,12 @@ package br.com.lottus.edu.library.controller;
 import br.com.lottus.edu.library.dto.LivroRequestDTO;
 import br.com.lottus.edu.library.dto.LivroResponseDTO;
 import br.com.lottus.edu.library.model.Categoria;
+import br.com.lottus.edu.library.model.Livro;
 import br.com.lottus.edu.library.service.CategoriaService;
 import br.com.lottus.edu.library.service.LivroService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -25,11 +27,15 @@ public class LivroController {
         this.livroService = livroService;
         this.categoriaService = categoriaService;
     }
-    @Operation(summary = "Busca todos os livros", description = "Retorna uma lista de todos os livros")
+    @Operation(summary = "Busca todos os livros em paginação", description = "Retorna uma pagina de livros")
     @GetMapping
-    public ResponseEntity<List<LivroResponseDTO>> buscarTodos() {
-        List<LivroResponseDTO> livros = livroService.buscarTodos();
-        return ResponseEntity.ok(livros);
+    public ResponseEntity<Page<LivroResponseDTO>> buscarTodos(
+            @RequestParam(value = "pagina", defaultValue = "0") int pagina,
+            @RequestParam(value = "tamanho", defaultValue = "10") int tamanho)
+
+    {
+        return ResponseEntity.ok(livroService.listarTodos(pagina, tamanho));
+
     }
 
     @Operation(summary = "Adiciona um novo livro", description = "Retorna o livro cadastrado com um status created")

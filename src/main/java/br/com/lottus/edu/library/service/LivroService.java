@@ -12,6 +12,10 @@ import br.com.lottus.edu.library.repository.LivroRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
@@ -28,18 +32,16 @@ public class LivroService {
     @Autowired
     private CategoriaRepository categoriaRepository;
 
-    public List<LivroResponseDTO> buscarTodos() {
-        return livroRepository.findAll().stream()
-                .map(livro -> new LivroResponseDTO(
-                        livro.getId(),
-                        livro.getNome(),
-                        livro.getAutor(),
-                        livro.getQuantidade(),
-                        livro.getQuantidadeDisponivel(),
-                        livro.getCategoria().getNome(),
-                        livro.getDescricao()))
-                .toList();
+    public Page<LivroResponseDTO> listarTodos(int pagina, int tamanho) {
+
+        Pageable pagable = PageRequest.of(pagina, tamanho, Sort.by("id").descending());
+        
+        Page<Livro> paginadeLivros =  livroRepository.findAll(pagable);
+
+        return paginadeLivros.map(this::converterParaDTO);
     }
+
+
 
     public LivroResponseDTO cadastrarLivro(LivroRequestDTO livroRequestDTO) {
         Categoria categoria = categoriaRepository.findById(livroRequestDTO.categoriaId())
@@ -122,4 +124,19 @@ public class LivroService {
 
         return livros;
     }
+
+    private LivroResponseDTO converterParaDTO(Livro livro){
+
+        return new LivroResponseDTO(
+                livro.getId(),
+                livro.getNome(),
+                livro.getAutor(),
+                livro.getQuantidade(),
+                livro.getQuantidadeDisponivel(),
+                livro.getCategoria().getNome(),
+                livro.getDescricao()
+        );
+    }
+
+
 }

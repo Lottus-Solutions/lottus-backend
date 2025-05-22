@@ -4,6 +4,7 @@ import br.com.lottus.edu.library.model.Aluno;
 import br.com.lottus.edu.library.model.Emprestimo;
 import br.com.lottus.edu.library.model.Livro;
 import br.com.lottus.edu.library.model.StatusEmprestimo;
+import org.springframework.data.domain.Page;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.Query;
@@ -31,4 +32,6 @@ public interface EmprestimoRepository extends JpaRepository<Emprestimo, Long> {
             "(LOWER(e.aluno.nome) LIKE LOWER(CONCAT('%', :valor, '%')) OR " +
             "LOWER(e.livro.nome) LIKE LOWER(CONCAT('%', :valor, '%')))")
     List<Emprestimo> findAtrasadosByAlunoNomeOrLivroNomeContainingIgnoreCase(String valor);
+
+
 }
