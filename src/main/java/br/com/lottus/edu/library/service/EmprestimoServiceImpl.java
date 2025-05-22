@@ -2,10 +2,7 @@ package br.com.lottus.edu.library.service;
 
 import br.com.lottus.edu.library.dto.RequestEmprestimo;
 import br.com.lottus.edu.library.exception.*;
-import br.com.lottus.edu.library.model.Aluno;
-import br.com.lottus.edu.library.model.Emprestimo;
-import br.com.lottus.edu.library.model.Livro;
-import br.com.lottus.edu.library.model.StatusEmprestimo;
+import br.com.lottus.edu.library.model.*;
 import br.com.lottus.edu.library.repository.AlunoRepository;
 import br.com.lottus.edu.library.repository.EmprestimoRepository;
 import br.com.lottus.edu.library.repository.LivroRepository;
@@ -82,6 +79,10 @@ public class EmprestimoServiceImpl implements EmprestimoService{
         Livro livro = livroRepository.findById(requestEmprestimo.fk_livro())
                 .orElseThrow(LivroNaoEncontradoException::new);
 
+        if (livro.getQuantidadeDisponivel() == 1) {
+            livro.setStatus(StatusLivro.RESERVADO);
+        }
+
         if (livro.getQuantidadeDisponivel() == 0) {
             throw new LivroIndisponivelException();
         }
@@ -114,13 +115,8 @@ public class EmprestimoServiceImpl implements EmprestimoService{
 
     @Override
     public Boolean finalizarEmprestimo(Long emprestimoId) {
-        Optional<Emprestimo> emprestimoOpt = emprestimoRepository.findById(emprestimoId);
-
-        if(emprestimoOpt.isEmpty()){
-            throw new EmprestimoNaoEncontradoException();
-        }
-
-        Emprestimo emprestimo = emprestimoOpt.get();
+        Emprestimo emprestimo = emprestimoRepository.findById(emprestimoId)
+                .orElseThrow(EmprestimoNaoEncontradoException::new);
 
         emprestimo.setStatusEmprestimo(StatusEmprestimo.FINALIZADO);
         emprestimoRepository.save(emprestimo);
@@ -132,6 +128,11 @@ public class EmprestimoServiceImpl implements EmprestimoService{
         }
 
         emprestimo.getLivro().setQuantidadeDisponivel(emprestimo.getLivro().getQuantidadeDisponivel() + 1);
+
+        if (emprestimo.getLivro().getQuantidadeDisponivel() == 1) {
+            emprestimo.getLivro().setStatus(StatusLivro.DISPONIVEL);
+        }
+
         livroRepository.save(emprestimo.getLivro());
 
         return true;
