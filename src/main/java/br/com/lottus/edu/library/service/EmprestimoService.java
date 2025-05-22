@@ -4,6 +4,7 @@ import br.com.lottus.edu.library.dto.RequestEmprestimo;
 import br.com.lottus.edu.library.model.Aluno;
 import br.com.lottus.edu.library.model.Emprestimo;
 import br.com.lottus.edu.library.model.Livro;
+import org.springframework.data.domain.Page;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -16,7 +17,7 @@ public interface EmprestimoService {
      *
      * @return Lista de empréstimos.
      */
-    List<Emprestimo> listarEmprestimos();
+    Page<Emprestimo> listarEmprestimos(int page, int size);
 
     /**
      * Renovar um empréstimo existente.

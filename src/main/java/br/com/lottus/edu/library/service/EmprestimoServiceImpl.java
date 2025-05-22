@@ -10,10 +10,12 @@ import br.com.lottus.edu.library.utils.LimitedList;
 import lombok.Getter;
 import lombok.Setter;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
-import java.util.stream.Collectors;
 
 @Service
 @Getter @Setter
@@ -43,17 +45,9 @@ public class EmprestimoServiceImpl implements EmprestimoService{
     private AlunoService alunoService;
 
     @Override
-    public List<Emprestimo> listarEmprestimos() {
-        List<Emprestimo> emprestimos = emprestimoRepository.findAll();
-        List<Emprestimo> emprestimosAtivosAtrasados = new ArrayList<>();
-
-        for (Emprestimo emprestimo : emprestimos) {
-            if (emprestimo.getStatusEmprestimo() == StatusEmprestimo.ATIVO || emprestimo.getStatusEmprestimo() == StatusEmprestimo.ATRASADO) {
-                emprestimosAtivosAtrasados.add(emprestimo);
-            }
-        }
-
-        return emprestimosAtivosAtrasados;
+    public Page<Emprestimo> listarEmprestimos(int pagina, int tamanho) {
+        Pageable pageable = PageRequest.of(pagina, tamanho);
+        return emprestimoRepository.findAll(pageable);
     }
 
     @Override
