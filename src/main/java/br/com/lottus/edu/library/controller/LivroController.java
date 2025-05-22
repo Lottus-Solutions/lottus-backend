@@ -66,4 +66,11 @@ public class LivroController {
         List<LivroResponseDTO> livros = livroService.filtrarPorCategoria(categoriaIds);
         return ResponseEntity.ok(livros);
     }
+
+    @Operation(summary = "filtrar livros por status", description = "Retorna uma lista de livros filtrados pelo status")
+    @GetMapping("/filtrar-por-status")
+    public ResponseEntity<List<LivroResponseDTO>> filtrarPorStatus(@RequestParam String status) {
+        List<LivroResponseDTO> livros = livroService.filtrarPorStatus(status);
+        return ResponseEntity.ok(livros);
+    }
 }

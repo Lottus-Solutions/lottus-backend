@@ -127,4 +127,25 @@ public class LivroService {
 
         return livros;
     }
+
+    public List<LivroResponseDTO> filtrarPorStatus(String status) {
+        StatusLivro statusLivro = StatusLivro.fromString(status);
+        List<LivroResponseDTO> livros = livroRepository.findByStatus(statusLivro).stream()
+                .map(livro -> new LivroResponseDTO(
+                        livro.getId(),
+                        livro.getNome(),
+                        livro.getAutor(),
+                        livro.getQuantidade(),
+                        livro.getQuantidadeDisponivel(),
+                        livro.getStatus(),
+                        livro.getCategoria().getNome(),
+                        livro.getDescricao()))
+                .toList();
+
+        if (livros.isEmpty()) {
+            throw new NenhumLivroEncontradoException();
+        }
+
+        return livros;
+    }
 }
