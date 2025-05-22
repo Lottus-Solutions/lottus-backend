@@ -1,7 +1,7 @@
 package br.com.lottus.edu.library.repository;
 
 import br.com.lottus.edu.library.model.Livro;
-import org.hibernate.query.Page;
+import br.com.lottus.edu.library.model.StatusLivro;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -14,4 +14,5 @@ public interface LivroRepository extends JpaRepository<Livro, Long> {
             "LOWER (l.autor) LIKE LOWER(CONCAT('%', :valor, '%'))")
     List<Livro> findByNomeOrAutor(@Param("valor") String valor);
     List<Livro> findByCategoriaIdIn(List<Long> categoriaIds);
+    List<Livro> findByStatus(StatusLivro status);
 }
