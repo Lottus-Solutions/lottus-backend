@@ -11,6 +11,8 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -63,11 +65,14 @@ public class EmprestimoController {
     @Operation(summary = "Lista todos os empréstimos", description = "Retorna uma lista de todos os empréstimos")
     @GetMapping
     public ResponseEntity<Page<Emprestimo>> listarEmprestimos(
+            @RequestParam(required = false) String busca,
+            @RequestParam(required = false) boolean atrasados,
             @RequestParam(defaultValue = "0") int pagina,
             @RequestParam(defaultValue = "10") int tamanho
     ) {
-        Page<Emprestimo> emprestimo = emprestimoService.listarEmprestimos(pagina, tamanho);
-        return ResponseEntity.ok(emprestimo);
+        Pageable pageable = PageRequest.of(pagina, tamanho);
+        Page<Emprestimo> emprestimos = emprestimoService.listarEmprestimos(busca, atrasados, pageable);
+        return ResponseEntity.ok(emprestimos);
     }
 
     @PostMapping("/{id}/renovar")
@@ -90,14 +95,14 @@ public class EmprestimoController {
         }
     }
 
-    @GetMapping("/buscar")
-    public ResponseEntity<List<Emprestimo>> buscarEmprestimos(
-            @RequestParam(required = false) String valor){
-
-        List<Emprestimo> emprestimos = emprestimoService.buscarEmprestimos(valor);
-
-        return ResponseEntity.ok(emprestimos);
-    }
+//    @GetMapping("/buscar")
+//    public ResponseEntity<List<Emprestimo>> buscarEmprestimos(
+//            @RequestParam(required = false) String valor){
+//
+//        List<Emprestimo> emprestimos = emprestimoService.buscarEmprestimos(valor);
+//
+//        return ResponseEntity.ok(emprestimos);
+//    }
 
     @GetMapping("/historico/livro/{id}")
     public ResponseEntity<List<Emprestimo>> buscarHistoricoLivro(@PathVariable Long id) {

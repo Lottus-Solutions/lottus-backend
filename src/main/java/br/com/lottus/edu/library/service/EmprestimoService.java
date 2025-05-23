@@ -5,6 +5,7 @@ import br.com.lottus.edu.library.model.Aluno;
 import br.com.lottus.edu.library.model.Emprestimo;
 import br.com.lottus.edu.library.model.Livro;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -17,7 +18,7 @@ public interface EmprestimoService {
      *
      * @return Lista de empréstimos.
      */
-    Page<Emprestimo> listarEmprestimos(int page, int size);
+    Page<Emprestimo> listarEmprestimos(String busca, boolean atrasados, Pageable pageable);
 
     /**
      * Renovar um empréstimo existente.
@@ -49,7 +50,7 @@ public interface EmprestimoService {
      * @param valor o valor generico para busca do emprestimo.
      * @return Lista de empréstimos correspondentes ao critério de busca.
      */
-    List<Emprestimo> buscarEmprestimos(String valor);
+//    List<Emprestimo> buscarEmprestimos(String valor);
 
     /**
      * Buscar o histórico de empréstimos de um livro específico.

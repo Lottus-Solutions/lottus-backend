@@ -11,10 +11,10 @@ import lombok.Getter;
 import lombok.Setter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
 import java.util.*;
 
 @Service
@@ -45,9 +45,25 @@ public class EmprestimoServiceImpl implements EmprestimoService{
     private AlunoService alunoService;
 
     @Override
-    public Page<Emprestimo> listarEmprestimos(int pagina, int tamanho) {
-        Pageable pageable = PageRequest.of(pagina, tamanho);
-        return emprestimoRepository.findAll(pageable);
+    public Page<Emprestimo> listarEmprestimos(String busca, boolean atrasados, Pageable pageable) {
+        List<StatusEmprestimo> statusEmprestimos = Arrays.asList(StatusEmprestimo.ATIVO, StatusEmprestimo.ATRASADO);
+
+        boolean temBusca = busca != null && !busca.isEmpty();
+
+        if (temBusca && atrasados) {
+            return emprestimoRepository.findByAlunoOrLivroAndStatus(busca, StatusEmprestimo.ATRASADO, pageable);
+        }
+
+        if (temBusca) {
+            return emprestimoRepository.findByAlunoOrLivro(statusEmprestimos, busca, pageable);
+        }
+
+        if (atrasados) {
+            return emprestimoRepository.findByStatusEmprestimo(StatusEmprestimo.ATRASADO, pageable);
+        }
+
+
+        return emprestimoRepository.findByStatusIn(statusEmprestimos, pageable);
     }
 
     @Override
@@ -85,7 +101,7 @@ public class EmprestimoServiceImpl implements EmprestimoService{
             throw new EmprestimoAtivoException();
         }
 
-        List<Emprestimo> emprestimosAtivos = emprestimoRepository.findAllByStatusEmprestimo(StatusEmprestimo.ATIVO);
+        List<Emprestimo> emprestimosAtivos = emprestimoRepository.findByStatusEmprestimo(StatusEmprestimo.ATIVO);
 
         emprestimosAtivos.forEach(e -> {
             if(e.getAluno().getMatricula().equals(requestEmprestimo.matriculaAluno())) {
@@ -99,7 +115,7 @@ public class EmprestimoServiceImpl implements EmprestimoService{
         novoEmprestimo.setLivro(livro);
         novoEmprestimo.setDataEmprestimo(requestEmprestimo.dataEmprestimo());
         novoEmprestimo.setDataDevolucaoPrevista(requestEmprestimo.dataEmprestimo().plusDays(qtdDias));
-        novoEmprestimo.setStatusEmprestimo(StatusEmprestimo.ATIVO);
+        novoEmprestimo.setStatusEmprestimo(setarStatusNaCriacaoEmprestimo(novoEmprestimo.getDataDevolucaoPrevista()));
 
         livro.setQuantidadeDisponivel(livro.getQuantidadeDisponivel() - 1);
         livroRepository.save(livro);
@@ -132,24 +148,24 @@ public class EmprestimoServiceImpl implements EmprestimoService{
         return true;
     }
 
-    @Override
-    public List<Emprestimo> buscarEmprestimos(String valor) {
-
-        if(valor == null || valor.isEmpty()){
-            return emprestimoRepository.findAll();
-        }
-
-        List<Emprestimo> todosEmprestimos = emprestimoRepository.findAll();
-
-        boolean filterAtrasados = apenasAtrasados != null && apenasAtrasados;
-
-        if(filterAtrasados){
-
-            return emprestimoRepository.findAtrasadosByAlunoNomeOrLivroNomeContainingIgnoreCase(valor);
-        }
-
-       return emprestimoRepository.findByAlunoNomeOrLivroNomeContainingIgnoreCase(valor);
-    }
+//    @Override
+//    public List<Emprestimo> buscarEmprestimos(String valor) {
+//
+//        if(valor == null || valor.isEmpty()){
+//            return emprestimoRepository.findAll();
+//        }
+//
+//        List<Emprestimo> todosEmprestimos = emprestimoRepository.findAll();
+//
+//        boolean filterAtrasados = apenasAtrasados != null && apenasAtrasados;
+//
+//        if(filterAtrasados){
+//
+//            return emprestimoRepository.findAtrasadosByAlunoNomeOrLivroNomeContainingIgnoreCase(valor);
+//        }
+//
+//       return emprestimoRepository.findByAlunoOrLivroAndStatus(valor);
+//    }
 
 
     @Override
@@ -158,7 +174,7 @@ public class EmprestimoServiceImpl implements EmprestimoService{
                 .orElseThrow(() -> new RuntimeException("Livro não encontrado"));
 
         List<Emprestimo> listaFinalizados =  emprestimoRepository
-                .findAllByStatusEmprestimo(StatusEmprestimo.FINALIZADO);
+                .findByStatusEmprestimo(StatusEmprestimo.FINALIZADO);
 
         List<Emprestimo> historicoLivro = new LimitedList<Emprestimo>(7);
 
@@ -182,7 +198,7 @@ public class EmprestimoServiceImpl implements EmprestimoService{
         Aluno aluno = alunoRepository.findById(matricula)
                 .orElseThrow(AlunoNaoEncontradoException::new);
 
-        List<Emprestimo> emprestimosFinalizados = emprestimoRepository.findAllByStatusEmprestimo(StatusEmprestimo.FINALIZADO);
+        List<Emprestimo> emprestimosFinalizados = emprestimoRepository.findByStatusEmprestimo(StatusEmprestimo.FINALIZADO);
 
         List<Emprestimo> historicoAluno = new LimitedList<Emprestimo>(7);
 
@@ -203,16 +219,27 @@ public class EmprestimoServiceImpl implements EmprestimoService{
     public List<Emprestimo> filtrarEmprestimosAtrasados() {
         setApenasAtrasados(true);
 
-       return emprestimoRepository.findAllByStatusEmprestimo(StatusEmprestimo.ATRASADO);
+       return emprestimoRepository.findByStatusEmprestimo(StatusEmprestimo.ATRASADO);
     }
 
     public void resetarStatus() {
-         List<Emprestimo> emprestimosFinalizados = emprestimoRepository.findAllByStatusEmprestimo(StatusEmprestimo.FINALIZADO);
+         List<Emprestimo> emprestimosFinalizados = emprestimoRepository.findByStatusEmprestimo(StatusEmprestimo.FINALIZADO);
 
          emprestimosFinalizados.forEach(emprestimo -> {
              emprestimo.setStatusEmprestimo(StatusEmprestimo.ARQUIVADO);
              emprestimoRepository.save(emprestimo);
          });
+    }
+
+    public StatusEmprestimo setarStatusNaCriacaoEmprestimo(LocalDate dataDevoluvaoPrevista) {
+        LocalDate dataAual = LocalDate.now();
+
+        if (dataAual.isAfter(dataDevoluvaoPrevista)) {
+            return StatusEmprestimo.ATRASADO;
+        } else  {
+            return StatusEmprestimo.ATIVO;
+        }
+
     }
 
 }
