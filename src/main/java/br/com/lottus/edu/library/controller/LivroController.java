@@ -59,10 +59,13 @@ public class LivroController {
         return ResponseEntity.status(200).body("Livro removido com sucesso");
     }
 
-    @Operation(summary = "busca livros pelo nome", description = "Retorna uma lista de livros com o nome informado")
-    @GetMapping("/buscar/{valor}")
-    public ResponseEntity<List<LivroResponseDTO>> buscarLivro(@PathVariable String valor) {
-        List<LivroResponseDTO> livros = livroService.buscarLivro(valor);
+    @Operation(summary = "Busca livros pelo nome ou autor", description = "Retorna uma página de livros filtrados pelo nome ou autor informado")
+    @GetMapping("/buscar")
+    public ResponseEntity<Page<LivroResponseDTO>> buscarLivro(
+            @RequestParam(value = "valor", required = false) String valor,
+            @RequestParam(value = "pagina", defaultValue = "0") int pagina,
+            @RequestParam(value = "tamanho", defaultValue = "10") int tamanho) {
+        Page<LivroResponseDTO> livros = livroService.buscarLivro(valor, pagina, tamanho);
         return ResponseEntity.ok(livros);
     }
 
