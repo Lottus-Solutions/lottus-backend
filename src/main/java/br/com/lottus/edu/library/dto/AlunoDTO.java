@@ -1,7 +1,7 @@
 package br.com.lottus.edu.library.dto;
 
 public class AlunoDTO {
-    private String matricula;
+    private Long matricula;
     private String nome;
     private Double qtd_bonus;
     private Long turma_id;
@@ -15,11 +15,11 @@ public class AlunoDTO {
         this.qtd_livros_lidos = qtd_livros_lidos;
     }
 
-    public String getMatricula() {
+    public Long getMatricula() {
         return matricula;
     }
 
-    public void setMatricula(String matricula) {
+    public void setMatricula(Long matricula) {
         this.matricula = matricula;
     }
 

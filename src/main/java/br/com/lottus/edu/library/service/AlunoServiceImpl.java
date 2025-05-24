@@ -1,7 +1,12 @@
 package br.com.lottus.edu.library.service;
 
 import br.com.lottus.edu.library.dto.AlunoDTO;
+import br.com.lottus.edu.library.exception.NenhumAlunoEncotradoException;
+import br.com.lottus.edu.library.exception.AlunoNaoEncontradoException;
+import br.com.lottus.edu.library.exception.TurmaNaoEncontradaException;
 import br.com.lottus.edu.library.model.Aluno;
+import br.com.lottus.edu.library.model.Emprestimo;
+import br.com.lottus.edu.library.model.StatusEmprestimo;
 import br.com.lottus.edu.library.model.Turma;
 import br.com.lottus.edu.library.repository.AlunoRepository;
 import br.com.lottus.edu.library.repository.TurmaRepository;
@@ -38,14 +43,11 @@ public class AlunoServiceImpl implements AlunoService{
         return true;
     }
 
-    public Boolean editarAluno(String matricula, AlunoDTO alunodto) {
+    public Boolean editarAluno(Long matricula, AlunoDTO alunodto) {
         // Busca o aluno existente pelo ID
         Aluno alunoExistente = alunoRepository.findByMatricula(matricula)
-                .orElseThrow(() -> new RuntimeException("Aluno não encontrado"));
+                .orElseThrow(AlunoNaoEncontradoException::new);
 
-        System.out.println("Aluno:" + alunodto.getNome() + alunodto.getQtd_livros_lidos());
-
-        // Atualiza os dados do aluno
         if(alunodto.getNome() != null){
             alunoExistente.setNome(alunodto.getNome());
         }
@@ -58,11 +60,9 @@ public class AlunoServiceImpl implements AlunoService{
             alunoExistente.setQtdLivrosLidos(alunodto.getQtd_livros_lidos());
         }
 
-
-        // Se a turma for modificada, verificamos a existência da nova turma
         if (alunodto.getTurma_id() != null) {
             Turma turma = turmaRepository.findById(alunodto.getTurma_id())
-                    .orElseThrow(() -> new RuntimeException("Turma não encontrada"));
+                    .orElseThrow(TurmaNaoEncontradaException::new);
             alunoExistente.setTurma(turma);
         }
 
@@ -79,10 +79,67 @@ public class AlunoServiceImpl implements AlunoService{
     }
 
     @Override
-    public Optional<Aluno> buscarAlunoPorMatricula(String matricula) {
+    public Optional<Aluno> buscarAlunoPorMatricula(Long matricula) {
         return alunoRepository.findByMatricula(matricula);
     }
 
+    @Override
+    public List<Aluno> listarAlunos() {
+        List<Aluno> alunos = alunoRepository.findAll();
 
+        if (alunos.isEmpty()) {
+            throw new NenhumAlunoEncotradoException();
+        }
 
+        return alunos;
+    }
+
+    public void atualizarPontuacao(Aluno aluno) {
+        aluno.setQtdBonus(aluno.getQtdBonus() + 0.25);
+        alunoRepository.save(aluno);
+    }
+
+    public void atualizarLivrosLidos(Aluno aluno) {
+        aluno.setQtdLivrosLidos(aluno.getQtdLivrosLidos() + 1);
+        alunoRepository.save(aluno);
+    }
+
+    public void resetarBonus() {
+        List<Aluno> alunos = alunoRepository.findAll();
+
+        for (Aluno aluno : alunos) {
+            aluno.resetarBonus();
+            alunoRepository.save(aluno);
+        }
+    }
+
+    public void resetarLivrosLidos() {
+        List<Aluno> alunos = alunoRepository.findAll();
+
+        for (Aluno aluno : alunos) {
+            aluno.resetarLivrosLidos();
+            alunoRepository.save(aluno);
+        }
+    }
+
+    public List<Aluno> listarAlunosPorNome(String nome) {
+        List<Aluno> alunos = alunoRepository.findAllByNomeContainingIgnoreCase(nome);
+
+        if (alunos.isEmpty()) {
+            throw new NenhumAlunoEncotradoException();
+        }
+
+        return alunos;
+    }
+
+    @Override
+    public List<Aluno> buscarAlunosPorNomeETurma(String nome, Long idTurma) {
+        return alunoRepository.findByNomeContainingAndTurmaId(nome, idTurma);
+    }
+
+    public List<Turma> listarTurmas(){
+        return turmaRepository.findAll();
+    }
 }
+
+
