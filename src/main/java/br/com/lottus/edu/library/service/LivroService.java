@@ -19,6 +19,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -62,10 +63,10 @@ public class LivroService {
 
     public LivroResponseDTO atualizarLivro(LivroRequestDTO livroRequestDTO, Long id) {
         Livro livro = livroRepository.findById(id)
-                .orElseThrow(() -> new LivroNaoEncontradoException());
+                .orElseThrow(LivroNaoEncontradoException::new);
 
         Categoria categoria = categoriaRepository.findById(livroRequestDTO.categoriaId())
-                .orElseThrow(() -> new CategoriaNaoEncontradaException());
+                .orElseThrow(CategoriaNaoEncontradaException::new);
 
         livro.setNome(livroRequestDTO.nome());
         livro.setAutor(livroRequestDTO.autor());
@@ -87,25 +88,14 @@ public class LivroService {
         return ResponseEntity.noContent().build();
     }
 
-    public List<LivroResponseDTO> buscarLivro(String valor) {
-        List<LivroResponseDTO> livrosEncontrados = livroRepository.findByNomeOrAutor(valor)
-                .stream()
-                .map(livro -> new LivroResponseDTO(
-                livro.getId(),
-                livro.getNome(),
-                livro.getAutor(),
-                livro.getQuantidade(),
-                livro.getQuantidadeDisponivel(),
-                livro.getStatus(),
-                livro.getCategoria().getNome(),
-                livro.getDescricao()))
-                .toList();
+    @Transactional(readOnly = true) //Melhora a performance
+    public Page<LivroResponseDTO> buscarLivro(String valor, int pagina, int tamanho) {
 
-        if (livrosEncontrados.isEmpty()) {
-            throw new NenhumLivroEncontradoException();
-        }
+        Pageable pageable = PageRequest.of(pagina, tamanho, Sort.by("id").descending());
 
-        return livrosEncontrados;
+        String termoBusca = valor == null ? "" : valor.trim();
+
+        return livroRepository.findByNomeContainingIgnoreCaseOrAutorContainingIgnoreCase(termoBusca, pageable);
     }
 
     public List<LivroResponseDTO> filtrarPorCategoria(List<Long> categoriaIds) {
