@@ -78,8 +78,10 @@ public class LivroController {
 
     @Operation(summary = "filtrar livros por status", description = "Retorna uma lista de livros filtrados pelo status")
     @GetMapping("/filtrar-por-status")
-    public ResponseEntity<List<LivroResponseDTO>> filtrarPorStatus(@RequestParam String status) {
-        List<LivroResponseDTO> livros = livroService.filtrarPorStatus(status);
+    public ResponseEntity<Page<LivroResponseDTO>> filtrarPorStatus(@RequestParam(value = "statusvalue", required = true) String status,
+                                                                   @RequestParam(value = "pagina", defaultValue="0")int pagina,
+                                                                   @RequestParam(value = "tamanho", defaultValue="10")int tamanho) {
+        Page<LivroResponseDTO> livros = livroService.filtrarPorStatus(status, pagina, tamanho);
         return ResponseEntity.ok(livros);
     }
 }

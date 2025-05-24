@@ -119,19 +119,13 @@ public class LivroService {
         return livros;
     }
 
-    public List<LivroResponseDTO> filtrarPorStatus(String status) {
+        public Page<LivroResponseDTO> filtrarPorStatus(String status, int pagina, int tamanho) {
         StatusLivro statusLivro = StatusLivro.fromString(status);
-        List<LivroResponseDTO> livros = livroRepository.findByStatus(statusLivro).stream()
-                .map(livro -> new LivroResponseDTO(
-                        livro.getId(),
-                        livro.getNome(),
-                        livro.getAutor(),
-                        livro.getQuantidade(),
-                        livro.getQuantidadeDisponivel(),
-                        livro.getStatus(),
-                        livro.getCategoria().getNome(),
-                        livro.getDescricao()))
-                .toList();
+
+        Pageable pageable = PageRequest.of(pagina, tamanho, Sort.by("id").descending());
+
+        Page<Livro> livrosPage = livroRepository.findByStatus(statusLivro, pageable);
+        Page<LivroResponseDTO> livros = livrosPage.map(this::converterParaDTO);
 
         if (livros.isEmpty()) {
             throw new NenhumLivroEncontradoException();
@@ -140,7 +134,7 @@ public class LivroService {
         return livros;
     }
 
-    private LivroResponseDTO converterParaDTO(Livro livro){
+    private LivroResponseDTO converterParaDTO(Livro livro) {
 
         return new LivroResponseDTO(
                 livro.getId(),
