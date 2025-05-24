@@ -24,5 +24,5 @@ public interface LivroRepository extends JpaRepository<Livro, Long> {
            "       l.autor LIKE CONCAT('%', :termoBusca, '%'))) ")
    Page<LivroResponseDTO> findByNomeContainingIgnoreCaseOrAutorContainingIgnoreCase(@Param("termoBusca")String valor, Pageable pageable);
    List<Livro> findByStatus(StatusLivro status);
-    List<Livro> findByCategoriaIdIn(List<Long> categoriaIds);
+   List<Livro> findByCategoriaIdIn(List<Long> categoriaIds);
 }
