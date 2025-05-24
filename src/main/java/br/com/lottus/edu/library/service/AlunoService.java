@@ -63,6 +63,15 @@ public interface AlunoService {
      */
     List<Aluno> listarAlunosPorNome(String nome);
 
+    /**
+     * lista alunos dentro de uma turma por nome
+     *
+     * @return List<Aluno> lista de alunos da turma
+     * @param nome o nome do aluno a ser buscado
+     * @param idTurma o id da turma a ser buscada
+     */
+    List<Aluno> buscarAlunosPorNomeETurma(String nome, Long idTurma);
+
 
     List<Turma> listarTurmas();
 

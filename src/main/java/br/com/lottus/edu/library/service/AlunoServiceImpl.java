@@ -132,6 +132,11 @@ public class AlunoServiceImpl implements AlunoService{
         return alunos;
     }
 
+    @Override
+    public List<Aluno> buscarAlunosPorNomeETurma(String nome, Long idTurma) {
+        return alunoRepository.findByNomeContainingAndTurmaId(nome, idTurma);
+    }
+
     public List<Turma> listarTurmas(){
         return turmaRepository.findAll();
     }

@@ -16,4 +16,6 @@ public interface AlunoRepository extends JpaRepository<Aluno, Long> {
     List<Aluno> findAllByTurma(Optional<Turma> turma);
 
     List<Aluno> findAllByNomeContainingIgnoreCase(String nome);
+
+    List<Aluno> findByNomeContainingAndTurmaId(String nome, Long idTurma);
 }

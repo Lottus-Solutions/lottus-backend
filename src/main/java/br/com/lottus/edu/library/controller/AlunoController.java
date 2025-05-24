@@ -123,5 +123,10 @@ public class AlunoController {
         List<Turma> turmas = alunoService.listarTurmas();
         return ResponseEntity.ok(turmas);
     }
+    @Operation(summary = "Busca alunos por nome e turma", description = "Retorna uma lista dos alunos encontrados")
+    @GetMapping("buscar-aluno-nome-turma/{turmaId}/{nome}")
+    public ResponseEntity<List<Aluno>> buscarAlunosPorNomeETurma(@PathVariable String nome, @PathVariable Long turmaId){
+        return ResponseEntity.ok(alunoService.buscarAlunosPorNomeETurma(nome, turmaId));
+    }
 
 }
