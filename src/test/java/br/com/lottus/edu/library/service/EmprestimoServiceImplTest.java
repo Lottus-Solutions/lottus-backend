@@ -1,12 +1,10 @@
 package br.com.lottus.edu.library.service;
 
 import br.com.lottus.edu.library.dto.RequestEmprestimo;
-import br.com.lottus.edu.library.exception.LivroNaoEncontradoException;
 import br.com.lottus.edu.library.model.Aluno;
 import br.com.lottus.edu.library.model.Emprestimo;
 import br.com.lottus.edu.library.model.Livro;
 import br.com.lottus.edu.library.model.StatusEmprestimo;
-import br.com.lottus.edu.library.model.StatusLivro;
 import br.com.lottus.edu.library.model.Turma;
 import br.com.lottus.edu.library.model.Categoria;
 import br.com.lottus.edu.library.repository.AlunoRepository;
@@ -173,7 +171,7 @@ public class EmprestimoServiceImplTest {
 
         when(alunoRepository.findByMatricula(requestEmprestimoPadrao.matriculaAluno())).thenReturn(Optional.of(alunoComum));
         when(livroRepository.findById(requestEmprestimoPadrao.fk_livro())).thenReturn(Optional.of(livroComum));
-        when(emprestimoRepository.findAllByStatusEmprestimo(StatusEmprestimo.ATIVO))
+        when(emprestimoRepository.findByStatusEmprestimo(StatusEmprestimo.ATIVO))
                 .thenReturn(Collections.singletonList(emprestimoExistente));
 
         assertThrows(AlunoComEmprestimoException.class, () -> {
@@ -182,7 +180,7 @@ public class EmprestimoServiceImplTest {
 
         verify(alunoRepository, times(1)).findByMatricula(requestEmprestimoPadrao.matriculaAluno());
         verify(livroRepository, times(1)).findById(requestEmprestimoPadrao.fk_livro());
-        verify(emprestimoRepository, times(1)).findAllByStatusEmprestimo(StatusEmprestimo.ATIVO);
+        verify(emprestimoRepository, times(1)).findByStatusEmprestimo(StatusEmprestimo.ATIVO);
         verify(emprestimoRepository, never()).save(any(Emprestimo.class));
     }
 
@@ -198,7 +196,7 @@ public class EmprestimoServiceImplTest {
 
         verify(alunoRepository, times(1)).findByMatricula(requestEmprestimoPadrao.matriculaAluno());
         verify(livroRepository, times(1)).findById(requestEmprestimoPadrao.fk_livro());
-        verify(emprestimoRepository, times(1)).findAllByStatusEmprestimo(StatusEmprestimo.ATIVO);
+        verify(emprestimoRepository, times(1)).findByStatusEmprestimo(StatusEmprestimo.ATIVO);
         verify(emprestimoRepository, never()).save(any(Emprestimo.class));
     }
 
@@ -214,7 +212,7 @@ public class EmprestimoServiceImplTest {
 
         verify(alunoRepository, times(1)).findByMatricula(requestEmprestimoPadrao.matriculaAluno());
         verify(livroRepository, times(1)).findById(requestEmprestimoPadrao.fk_livro());
-        verify(emprestimoRepository, times(1)).findAllByStatusEmprestimo(StatusEmprestimo.ATIVO);
+        verify(emprestimoRepository, times(1)).findByStatusEmprestimo(StatusEmprestimo.ATIVO);
         verify(emprestimoRepository, never()).save(any(Emprestimo.class));
     }
 
@@ -323,13 +321,13 @@ public class EmprestimoServiceImplTest {
     void filtrarEmprestimosAtrasados_QuandoApenasAtrasadosEraFalse_DeveMudarParaTrueERetornarAtrasados() {
         emprestimoService.setApenasAtrasados(false);
         List<Emprestimo> listaAtrasados = List.of(emprestimoRealmenteAtrasado);
-        when(emprestimoRepository.findAllByStatusEmprestimo(StatusEmprestimo.ATRASADO)).thenReturn(listaAtrasados);
+        when(emprestimoRepository.findByStatusEmprestimo(StatusEmprestimo.ATRASADO)).thenReturn(listaAtrasados);
 
         List<Emprestimo> resultado = emprestimoService.filtrarEmprestimosAtrasados();
 
         assertTrue(emprestimoService.getApenasAtrasados());
         assertEquals(listaAtrasados, resultado);
-        verify(emprestimoRepository).findAllByStatusEmprestimo(StatusEmprestimo.ATRASADO);
+        verify(emprestimoRepository).findByStatusEmprestimo(StatusEmprestimo.ATRASADO);
     }
 
     @Test
@@ -375,13 +373,13 @@ public class EmprestimoServiceImplTest {
         emprestimoService.setApenasAtrasados(false);
         String termo = "Aluno Comum";
         List<Emprestimo> listaEsperada = List.of(emprestimoAtivo);
-        when(emprestimoRepository.findByAlunoNomeOrLivroNomeContainingIgnoreCase(termo)).thenReturn(listaEsperada);
+        when(emprestimoRepository.findByAlunoOrLivroAndStatus(termo)).thenReturn(listaEsperada);
 
         List<Emprestimo> resultado = emprestimoService.buscarEmprestimos(termo);
 
         assertEquals(listaEsperada, resultado);
         assertFalse(emprestimoService.getApenasAtrasados());
-        verify(emprestimoRepository).findByAlunoNomeOrLivroNomeContainingIgnoreCase(termo);
+        verify(emprestimoRepository).findByAlunoOrLivroAndStatus(termo);
     }
 
     @Test
@@ -404,12 +402,12 @@ public class EmprestimoServiceImplTest {
     void buscarEmprestimos_ComValorNaoEncontrado_E_apenasAtrasadosFalse_DeveRetornarListaVazia() {
         emprestimoService.setApenasAtrasados(false);
         String termo = "Inexistente";
-        when(emprestimoRepository.findByAlunoNomeOrLivroNomeContainingIgnoreCase(termo)).thenReturn(Collections.emptyList());
+        when(emprestimoRepository.findByAlunoOrLivroAndStatus(termo)).thenReturn(Collections.emptyList());
 
         List<Emprestimo> resultado = emprestimoService.buscarEmprestimos(termo);
 
         assertTrue(resultado.isEmpty());
-        verify(emprestimoRepository).findByAlunoNomeOrLivroNomeContainingIgnoreCase(termo);
+        verify(emprestimoRepository).findByAlunoOrLivroAndStatus(termo);
     }
 
     @Test
