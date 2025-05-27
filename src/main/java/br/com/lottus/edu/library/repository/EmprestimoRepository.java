@@ -1,5 +1,6 @@
 package br.com.lottus.edu.library.repository;
 
+import br.com.lottus.edu.library.dto.EmprestimoResponseDTO;
 import br.com.lottus.edu.library.model.Aluno;
 import br.com.lottus.edu.library.model.Emprestimo;
 import br.com.lottus.edu.library.model.Livro;
@@ -22,6 +23,18 @@ public interface EmprestimoRepository extends JpaRepository<Emprestimo, Long> {
     List<Emprestimo> findByLivro(Livro livro);
     List<Emprestimo> findAllByAluno(Aluno aluno);
     Optional<Emprestimo> findByAluno(Aluno aluno);
+
+    @Query("SELECT e FROM Emprestimo e " +
+            "WHERE (:busca IS NULL OR :busca = '' OR " +
+            "      LOWER(e.aluno.nome) LIKE LOWER(CONCAT('%', :busca, '%')) OR " +
+            "      LOWER(e.livro.nome) LIKE LOWER(CONCAT('%', :busca, '%'))) " +
+            "AND (:apenasAtrasado = FALSE OR e.status = 'ATRASADO') " +
+            "AND (e.status IN :statusList)")
+    Page<EmprestimoResponseDTO> findByBuscaOuFiltro(
+            @Param("busca") String busca,
+            @Param("apenasAtrasado") boolean apenasAtrasado,
+            @Param("statusList") List<StatusEmprestimo> statusList,
+            Pageable pageable);
 
     @Query("SELECT e FROM Emprestimo e WHERE e.statusEmprestimo IN (:statusList)")
     Page<Emprestimo> findByStatusIn(@Param("statusList") List<StatusEmprestimo> statusList, Pageable pageable);
