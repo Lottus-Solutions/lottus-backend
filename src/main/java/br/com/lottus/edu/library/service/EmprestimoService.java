@@ -1,5 +1,6 @@
 package br.com.lottus.edu.library.service;
 
+import br.com.lottus.edu.library.dto.EmprestimoResponseDTO;
 import br.com.lottus.edu.library.dto.RequestEmprestimo;
 import br.com.lottus.edu.library.model.Aluno;
 import br.com.lottus.edu.library.model.Emprestimo;
@@ -18,7 +19,7 @@ public interface EmprestimoService {
      *
      * @return Lista de empréstimos.
      */
-    Page<Emprestimo> listarEmprestimos(String busca, boolean atrasados, Pageable pageable);
+    Page<EmprestimoResponseDTO> listarEmprestimos(String busca, boolean atrasados, Pageable pageable);
 
     /**
      * Renovar um empréstimo existente.

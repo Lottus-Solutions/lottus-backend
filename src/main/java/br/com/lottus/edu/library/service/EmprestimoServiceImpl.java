@@ -1,5 +1,6 @@
 package br.com.lottus.edu.library.service;
 
+import br.com.lottus.edu.library.dto.EmprestimoResponseDTO;
 import br.com.lottus.edu.library.dto.RequestEmprestimo;
 import br.com.lottus.edu.library.exception.*;
 import br.com.lottus.edu.library.model.*;
@@ -45,25 +46,9 @@ public class EmprestimoServiceImpl implements EmprestimoService{
     private AlunoService alunoService;
 
     @Override
-    public Page<Emprestimo> listarEmprestimos(String busca, boolean atrasados, Pageable pageable) {
-        List<StatusEmprestimo> statusEmprestimos = Arrays.asList(StatusEmprestimo.ATIVO, StatusEmprestimo.ATRASADO);
-
-        boolean temBusca = busca != null && !busca.isEmpty();
-
-        if (temBusca && atrasados) {
-            return emprestimoRepository.findByAlunoOrLivroAndStatus(busca, StatusEmprestimo.ATRASADO, pageable);
-        }
-
-        if (temBusca) {
-            return emprestimoRepository.findByAlunoOrLivro(statusEmprestimos, busca, pageable);
-        }
-
-        if (atrasados) {
-            return emprestimoRepository.findByStatusEmprestimo(StatusEmprestimo.ATRASADO, pageable);
-        }
-
-
-        return emprestimoRepository.findByStatusIn(statusEmprestimos, pageable);
+    public Page<EmprestimoResponseDTO> listarEmprestimos(String busca, boolean atrasados, Pageable pageable) {
+        List<StatusEmprestimo> statusList = Arrays.asList(StatusEmprestimo.ATIVO, StatusEmprestimo.ATRASADO);
+        return emprestimoRepository.findByBuscaOuFiltro(busca, atrasados, statusList, pageable);
     }
 
     @Override

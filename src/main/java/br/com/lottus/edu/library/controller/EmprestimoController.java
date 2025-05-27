@@ -1,6 +1,7 @@
 package br.com.lottus.edu.library.controller;
 
 
+import br.com.lottus.edu.library.dto.EmprestimoResponseDTO;
 import br.com.lottus.edu.library.dto.RequestEmprestimo;
 import br.com.lottus.edu.library.model.Emprestimo;
 import br.com.lottus.edu.library.repository.AlunoRepository;
@@ -64,14 +65,14 @@ public class EmprestimoController {
 
     @Operation(summary = "Lista todos os empréstimos", description = "Retorna uma lista de todos os empréstimos")
     @GetMapping
-    public ResponseEntity<Page<Emprestimo>> listarEmprestimos(
+    public ResponseEntity<Page<EmprestimoResponseDTO>> listarEmprestimos(
             @RequestParam(required = false) String busca,
             @RequestParam(required = false) boolean atrasados,
             @RequestParam(defaultValue = "0") int pagina,
             @RequestParam(defaultValue = "10") int tamanho
     ) {
         Pageable pageable = PageRequest.of(pagina, tamanho);
-        Page<Emprestimo> emprestimos = emprestimoService.listarEmprestimos(busca, atrasados, pageable);
+        Page<EmprestimoResponseDTO> emprestimos = emprestimoService.listarEmprestimos(busca, atrasados, pageable);
         return ResponseEntity.ok(emprestimos);
     }
 
