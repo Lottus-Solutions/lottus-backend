@@ -20,9 +20,15 @@ public interface LivroRepository extends JpaRepository<Livro, Long> {
            "  l.id, l.nome, l.autor, l.quantidade, l.quantidadeDisponivel, l.status, c.nome, l.descricao) " +
            "FROM Livro l JOIN l.categoria c " +
            "WHERE (:termoBusca IS NULL OR :termoBusca = '' OR " +
-           "      (l.nome LIKE CONCAT('%', :termoBusca, '%') OR " +
-           "       l.autor LIKE CONCAT('%', :termoBusca, '%'))) ")
-   Page<LivroResponseDTO> findByNomeContainingIgnoreCaseOrAutorContainingIgnoreCase(@Param("termoBusca")String valor, Pageable pageable);
+           "      LOWER(l.nome) LIKE LOWER(CONCAT('%', :termoBusca, '%')) OR " +
+           "      LOWER(l.autor) LIKE LOWER(CONCAT('%', :termoBusca, '%'))) " +
+           "AND (:status IS NULL OR l.status = :status) " +
+           "AND (:categoriaId IS NULL OR c.id = :categoriaId)")
+   Page<LivroResponseDTO> findByBuscaOuFiltro(
+           @Param("termoBusca")String valor,
+           @Param("status") StatusLivro status,
+           @Param("categoriaId") Long categoriaId,
+           Pageable pageable);
 
    Page<Livro> findByStatus(StatusLivro status, Pageable pageable);
    List<Livro> findByCategoriaIdIn(List<Long> categoriaIds);
