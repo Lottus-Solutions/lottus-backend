@@ -96,9 +96,15 @@ public class LivroService {
 
         String termoBusca = valor == null ? "" : valor.trim();
 
-        StatusLivro statusLivro = StatusLivro.fromString(status);
+        List<StatusLivro> statusList;
 
-        return livroRepository.findByBuscaOuFiltro(termoBusca, statusLivro, categoriaId, pageable);
+        if (status == null || status.isBlank()) {
+            statusList = List.of(StatusLivro.values());
+        } else {
+            statusList = List.of(StatusLivro.fromString(status));
+        }
+
+        return livroRepository.findByBuscaOuFiltro(termoBusca, statusList, categoriaId, pageable);
     }
 
     public List<LivroResponseDTO> filtrarPorCategoria(List<Long> categoriaIds) {

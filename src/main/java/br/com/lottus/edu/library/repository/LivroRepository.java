@@ -22,11 +22,11 @@ public interface LivroRepository extends JpaRepository<Livro, Long> {
            "WHERE (:termoBusca IS NULL OR :termoBusca = '' OR " +
            "      LOWER(l.nome) LIKE LOWER(CONCAT('%', :termoBusca, '%')) OR " +
            "      LOWER(l.autor) LIKE LOWER(CONCAT('%', :termoBusca, '%'))) " +
-           "AND (:status IS NULL OR l.status = :status) " +
+           "AND (:status IS NULL OR l.status IN (:status)) " +
            "AND (:categoriaId IS NULL OR c.id = :categoriaId)")
    Page<LivroResponseDTO> findByBuscaOuFiltro(
            @Param("termoBusca")String valor,
-           @Param("status") StatusLivro status,
+           @Param("status") List<StatusLivro> status,
            @Param("categoriaId") Long categoriaId,
            Pageable pageable);
 
