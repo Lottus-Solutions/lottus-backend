@@ -90,13 +90,21 @@ public class LivroService {
     }
 
     @Transactional(readOnly = true) //Melhora a performance
-    public Page<LivroResponseDTO> buscarLivro(String valor, int pagina, int tamanho) {
+    public Page<LivroResponseDTO> buscarLivro(String valor, String status, Long categoriaId, int pagina, int tamanho) {
 
         Pageable pageable = PageRequest.of(pagina, tamanho, Sort.by("id").descending());
 
         String termoBusca = valor == null ? "" : valor.trim();
 
-        return livroRepository.findByNomeContainingIgnoreCaseOrAutorContainingIgnoreCase(termoBusca, pageable);
+        List<StatusLivro> statusList;
+
+        if (status == null || status.isBlank()) {
+            statusList = List.of(StatusLivro.values());
+        } else {
+            statusList = List.of(StatusLivro.fromString(status));
+        }
+
+        return livroRepository.findByBuscaOuFiltro(termoBusca, statusList, categoriaId, pageable);
     }
 
     public List<LivroResponseDTO> filtrarPorCategoria(List<Long> categoriaIds) {

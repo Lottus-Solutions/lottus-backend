@@ -4,6 +4,7 @@ import br.com.lottus.edu.library.dto.LivroRequestDTO;
 import br.com.lottus.edu.library.dto.LivroResponseDTO;
 import br.com.lottus.edu.library.model.Categoria;
 import br.com.lottus.edu.library.model.Livro;
+import br.com.lottus.edu.library.model.StatusLivro;
 import br.com.lottus.edu.library.service.CategoriaService;
 import br.com.lottus.edu.library.service.LivroService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -63,9 +64,11 @@ public class LivroController {
     @GetMapping("/buscar")
     public ResponseEntity<Page<LivroResponseDTO>> buscarLivro(
             @RequestParam(value = "valor", required = false) String valor,
+            @RequestParam(value = "status", required = false) String status,
+            @RequestParam(value = "categoriaId", required = false) Long categoriaId,
             @RequestParam(value = "pagina", defaultValue = "0") int pagina,
             @RequestParam(value = "tamanho", defaultValue = "10") int tamanho) {
-        Page<LivroResponseDTO> livros = livroService.buscarLivro(valor, pagina, tamanho);
+        Page<LivroResponseDTO> livros = livroService.buscarLivro(valor, status, categoriaId, pagina, tamanho);
         return ResponseEntity.ok(livros);
     }
 
