@@ -48,7 +48,18 @@ public class EmprestimoServiceImpl implements EmprestimoService{
     @Override
     public Page<EmprestimoResponseDTO> listarEmprestimos(String busca, boolean atrasados, Pageable pageable) {
         List<StatusEmprestimo> statusList = Arrays.asList(StatusEmprestimo.ATIVO, StatusEmprestimo.ATRASADO);
-        return emprestimoRepository.findByBuscaOuFiltro(busca, atrasados, statusList, pageable);
+        return emprestimoRepository.findByBuscaOuFiltro(busca, atrasados, statusList, pageable)
+                .map(emprestimo -> new EmprestimoResponseDTO(
+                        emprestimo.getId(),
+                        emprestimo.getAluno().getMatricula(),
+                        emprestimo.getAluno().getNome(),
+                        emprestimo.getAluno().getTurma().getSerie(),
+                        emprestimo.getLivro().getId(),
+                        emprestimo.getLivro().getNome(),
+                        emprestimo.getDataEmprestimo(),
+                        emprestimo.getDataDevolucaoPrevista(),
+                        emprestimo.getDiasAtrasados()));
+
     }
 
     @Override
