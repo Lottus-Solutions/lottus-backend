@@ -48,17 +48,21 @@ public class EmprestimoServiceImpl implements EmprestimoService{
     @Override
     public Page<EmprestimoResponseDTO> listarEmprestimos(String busca, boolean atrasados, Pageable pageable) {
         List<StatusEmprestimo> statusList = Arrays.asList(StatusEmprestimo.ATIVO, StatusEmprestimo.ATRASADO);
+
         return emprestimoRepository.findByBuscaOuFiltro(busca, atrasados, statusList, pageable)
-                .map(emprestimo -> new EmprestimoResponseDTO(
-                        emprestimo.getId(),
-                        emprestimo.getAluno().getMatricula(),
-                        emprestimo.getAluno().getNome(),
-                        emprestimo.getAluno().getTurma().getSerie(),
-                        emprestimo.getLivro().getId(),
-                        emprestimo.getLivro().getNome(),
-                        emprestimo.getDataEmprestimo(),
-                        emprestimo.getDataDevolucaoPrevista(),
-                        emprestimo.getDiasAtrasados()));
+                .map(emprestimo -> {
+
+                    verificarDiasAtrasados(emprestimo);
+
+                    return new EmprestimoResponseDTO(
+                            emprestimo.getId(),
+                            emprestimo.getAluno().getNome(),
+                            emprestimo.getAluno().getTurma().getSerie(),
+                            emprestimo.getLivro().getNome(),
+                            emprestimo.getDataDevolucaoPrevista(),
+                            emprestimo.getDiasAtrasados()
+                    );
+                });
 
     }
 
@@ -235,7 +239,18 @@ public class EmprestimoServiceImpl implements EmprestimoService{
         } else  {
             return StatusEmprestimo.ATIVO;
         }
+    }
 
+    public void verificarDiasAtrasados(Emprestimo emprestimo) {
+        LocalDate dataAtual = LocalDate.now();
+        LocalDate dataDevolucaoPrevista = emprestimo.getDataDevolucaoPrevista();
+
+        if (dataAtual.isAfter(dataDevolucaoPrevista)) {
+            long diasAtrasados = dataAtual.toEpochDay() - dataDevolucaoPrevista.toEpochDay();
+            emprestimo.setDiasAtrasados((int) diasAtrasados);
+        } else {
+            emprestimo.setDiasAtrasados(0);
+        }
     }
 
 }
