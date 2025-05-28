@@ -28,9 +28,9 @@ public interface EmprestimoRepository extends JpaRepository<Emprestimo, Long> {
             "WHERE (:busca IS NULL OR :busca = '' OR " +
             "      LOWER(e.aluno.nome) LIKE LOWER(CONCAT('%', :busca, '%')) OR " +
             "      LOWER(e.livro.nome) LIKE LOWER(CONCAT('%', :busca, '%'))) " +
-            "AND (:apenasAtrasado = FALSE OR e.status = 'ATRASADO') " +
-            "AND (e.status IN :statusList)")
-    Page<EmprestimoResponseDTO> findByBuscaOuFiltro(
+            "AND (:apenasAtrasado = FALSE OR e.statusEmprestimo = 'ATRASADO') " +
+            "AND (e.statusEmprestimo IN :statusList)")
+    Page<Emprestimo> findByBuscaOuFiltro(
             @Param("busca") String busca,
             @Param("apenasAtrasado") boolean apenasAtrasado,
             @Param("statusList") List<StatusEmprestimo> statusList,

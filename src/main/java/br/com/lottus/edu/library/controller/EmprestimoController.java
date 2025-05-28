@@ -67,12 +67,13 @@ public class EmprestimoController {
     @GetMapping
     public ResponseEntity<Page<EmprestimoResponseDTO>> listarEmprestimos(
             @RequestParam(required = false) String busca,
-            @RequestParam(required = false) boolean atrasados,
+            @RequestParam(required = false) Boolean atrasados,
             @RequestParam(defaultValue = "0") int pagina,
             @RequestParam(defaultValue = "10") int tamanho
     ) {
         Pageable pageable = PageRequest.of(pagina, tamanho);
-        Page<EmprestimoResponseDTO> emprestimos = emprestimoService.listarEmprestimos(busca, atrasados, pageable);
+        boolean filtroAtrasados = atrasados != null && atrasados;
+        Page<EmprestimoResponseDTO> emprestimos = emprestimoService.listarEmprestimos(busca, filtroAtrasados, pageable);
         return ResponseEntity.ok(emprestimos);
     }
 
