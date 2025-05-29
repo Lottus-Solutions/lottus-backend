@@ -20,7 +20,7 @@ public class CategoriaService {
     }
 
     public Categoria adcionarCategoria(Categoria categoria) {
-        if (categoriaExiste(categoria.getId())) {
+        if (categoriaRepository.existsByNome(categoria.getNome())) {
             throw new CategoriaJaExistenteException();
         }
 
