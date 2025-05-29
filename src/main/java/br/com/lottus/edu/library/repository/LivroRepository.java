@@ -13,23 +13,17 @@ import java.util.List;
 
 public interface LivroRepository extends JpaRepository<Livro, Long> {
 
-
-   //TODO corrigir o nome do método para algo mais claro
-   //TODO será necessario docker compose com script de inicialização do banco para crição de indexes funcionais
    @Query("SELECT new br.com.lottus.edu.library.dto.LivroResponseDTO(" +
            "  l.id, l.nome, l.autor, l.quantidade, l.quantidadeDisponivel, l.status, c.nome, l.descricao) " +
            "FROM Livro l JOIN l.categoria c " +
-           "WHERE (:termoBusca IS NULL OR :termoBusca = '' OR " +
+           "WHERE (:termoBusca IS NULL OR " +
            "      LOWER(l.nome) LIKE LOWER(CONCAT('%', :termoBusca, '%')) OR " +
            "      LOWER(l.autor) LIKE LOWER(CONCAT('%', :termoBusca, '%'))) " +
-           "AND (:status IS NULL OR l.status IN (:status)) " +
+           "AND (:status IS NULL OR l.status IN :status) " +
            "AND (:categoriaId IS NULL OR c.id = :categoriaId)")
    Page<LivroResponseDTO> findByBuscaOuFiltro(
            @Param("termoBusca")String valor,
            @Param("status") List<StatusLivro> status,
            @Param("categoriaId") Long categoriaId,
            Pageable pageable);
-
-   Page<Livro> findByStatus(StatusLivro status, Pageable pageable);
-   List<Livro> findByCategoriaIdIn(List<Long> categoriaIds);
 }

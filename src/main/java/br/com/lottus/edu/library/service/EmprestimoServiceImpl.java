@@ -1,5 +1,6 @@
 package br.com.lottus.edu.library.service;
 
+import br.com.lottus.edu.library.dto.EmprestimoResponseDTO;
 import br.com.lottus.edu.library.dto.RequestEmprestimo;
 import br.com.lottus.edu.library.exception.*;
 import br.com.lottus.edu.library.model.*;
@@ -45,25 +46,24 @@ public class EmprestimoServiceImpl implements EmprestimoService{
     private AlunoService alunoService;
 
     @Override
-    public Page<Emprestimo> listarEmprestimos(String busca, boolean atrasados, Pageable pageable) {
-        List<StatusEmprestimo> statusEmprestimos = Arrays.asList(StatusEmprestimo.ATIVO, StatusEmprestimo.ATRASADO);
+    public Page<EmprestimoResponseDTO> listarEmprestimos(String busca, boolean atrasados, Pageable pageable) {
+        List<StatusEmprestimo> statusList = Arrays.asList(StatusEmprestimo.ATIVO, StatusEmprestimo.ATRASADO);
 
-        boolean temBusca = busca != null && !busca.isEmpty();
+        return emprestimoRepository.findByBuscaOuFiltro(busca, atrasados, statusList, pageable)
+                .map(emprestimo -> {
 
-        if (temBusca && atrasados) {
-            return emprestimoRepository.findByAlunoOrLivroAndStatus(busca, StatusEmprestimo.ATRASADO, pageable);
-        }
+                    verificarDiasAtrasados(emprestimo);
 
-        if (temBusca) {
-            return emprestimoRepository.findByAlunoOrLivro(statusEmprestimos, busca, pageable);
-        }
+                    return new EmprestimoResponseDTO(
+                            emprestimo.getId(),
+                            emprestimo.getAluno().getNome(),
+                            emprestimo.getAluno().getTurma().getSerie(),
+                            emprestimo.getLivro().getNome(),
+                            emprestimo.getDataDevolucaoPrevista(),
+                            emprestimo.getDiasAtrasados()
+                    );
+                });
 
-        if (atrasados) {
-            return emprestimoRepository.findByStatusEmprestimo(StatusEmprestimo.ATRASADO, pageable);
-        }
-
-
-        return emprestimoRepository.findByStatusIn(statusEmprestimos, pageable);
     }
 
     @Override
@@ -239,7 +239,18 @@ public class EmprestimoServiceImpl implements EmprestimoService{
         } else  {
             return StatusEmprestimo.ATIVO;
         }
+    }
 
+    public void verificarDiasAtrasados(Emprestimo emprestimo) {
+        LocalDate dataAtual = LocalDate.now();
+        LocalDate dataDevolucaoPrevista = emprestimo.getDataDevolucaoPrevista();
+
+        if (dataAtual.isAfter(dataDevolucaoPrevista)) {
+            long diasAtrasados = dataAtual.toEpochDay() - dataDevolucaoPrevista.toEpochDay();
+            emprestimo.setDiasAtrasados((int) diasAtrasados);
+        } else {
+            emprestimo.setDiasAtrasados(0);
+        }
     }
 
 }

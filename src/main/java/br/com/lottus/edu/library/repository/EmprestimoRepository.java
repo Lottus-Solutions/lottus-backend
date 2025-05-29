@@ -23,6 +23,18 @@ public interface EmprestimoRepository extends JpaRepository<Emprestimo, Long> {
     List<Emprestimo> findAllByAluno(Aluno aluno);
     Optional<Emprestimo> findByAluno(Aluno aluno);
 
+    @Query("SELECT e FROM Emprestimo e " +
+            "WHERE (:busca IS NULL OR :busca = '' OR " +
+            "      LOWER(e.aluno.nome) LIKE LOWER(CONCAT('%', :busca, '%')) OR " +
+            "      LOWER(e.livro.nome) LIKE LOWER(CONCAT('%', :busca, '%'))) " +
+            "AND (:apenasAtrasado = FALSE OR e.statusEmprestimo = 'ATRASADO') " +
+            "AND (e.statusEmprestimo IN :statusList)")
+    Page<Emprestimo> findByBuscaOuFiltro(
+            @Param("busca") String busca,
+            @Param("apenasAtrasado") boolean apenasAtrasado,
+            @Param("statusList") List<StatusEmprestimo> statusList,
+            Pageable pageable);
+
     @Query("SELECT e FROM Emprestimo e WHERE e.statusEmprestimo IN (:statusList)")
     Page<Emprestimo> findByStatusIn(@Param("statusList") List<StatusEmprestimo> statusList, Pageable pageable);
 
@@ -44,5 +56,6 @@ public interface EmprestimoRepository extends JpaRepository<Emprestimo, Long> {
             "LOWER(e.livro.nome) LIKE LOWER(CONCAT('%', :valor, '%')))")
     List<Emprestimo> findAtrasadosByAlunoNomeOrLivroNomeContainingIgnoreCase(String valor);
 
+    Optional<Emprestimo> findFirstByAluno_MatriculaAndStatusEmprestimoInOrderByDataEmprestimoDesc(Long matricula, List<StatusEmprestimo> statusList);
 
 }

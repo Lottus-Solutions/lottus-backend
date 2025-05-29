@@ -9,6 +9,7 @@ import br.com.lottus.edu.library.model.Emprestimo;
 import br.com.lottus.edu.library.model.StatusEmprestimo;
 import br.com.lottus.edu.library.model.Turma;
 import br.com.lottus.edu.library.repository.AlunoRepository;
+import br.com.lottus.edu.library.repository.EmprestimoRepository;
 import br.com.lottus.edu.library.repository.TurmaRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -24,16 +25,19 @@ public class AlunoServiceImpl implements AlunoService{
     @Autowired
     private TurmaRepository turmaRepository;
 
+    @Autowired
+    private EmprestimoRepository emprestimoRepository;
+
     public Aluno adicionarAluno(AlunoDTO alunodto) {
-        Turma turma = turmaRepository.findById(alunodto.getTurma_id())
+        Turma turma = turmaRepository.findById(alunodto.turmaId())
                 .orElseThrow(()-> new RuntimeException("Turma do aluno não encontrada"));
 
         Aluno aluno = new Aluno();
-        aluno.setMatricula(alunodto.getMatricula());
-        aluno.setNome(alunodto.getNome());
-        aluno.setQtdBonus(alunodto.getQtd_bonus());
-        aluno.setQtdLivrosLidos(alunodto.getQtd_livros_lidos());
-        aluno.setTurma(turmaRepository.getReferenceById(alunodto.getTurma_id()));
+        aluno.setMatricula(alunodto.matricula());
+        aluno.setNome(alunodto.nome());
+        aluno.setQtdBonus(alunodto.qtdBonus());
+        aluno.setQtdLivrosLidos(alunodto.qtdLivrosLidos());
+        aluno.setTurma(turmaRepository.getReferenceById(alunodto.turmaId()));
 
         return alunoRepository.save(aluno);
     }
@@ -48,20 +52,20 @@ public class AlunoServiceImpl implements AlunoService{
         Aluno alunoExistente = alunoRepository.findByMatricula(matricula)
                 .orElseThrow(AlunoNaoEncontradoException::new);
 
-        if(alunodto.getNome() != null){
-            alunoExistente.setNome(alunodto.getNome());
+        if(alunodto.nome() != null){
+            alunoExistente.setNome(alunodto.nome());
         }
 
-        if(alunodto.getQtd_bonus() != null){
-            alunoExistente.setQtdBonus(alunodto.getQtd_bonus());
+        if(alunodto.qtdBonus() != null){
+            alunoExistente.setQtdBonus(alunodto.qtdBonus());
         }
 
-        if(alunodto.getQtd_livros_lidos() != null){
-            alunoExistente.setQtdLivrosLidos(alunodto.getQtd_livros_lidos());
+        if(alunodto.qtdLivrosLidos() != null){
+            alunoExistente.setQtdLivrosLidos(alunodto.qtdLivrosLidos());
         }
 
-        if (alunodto.getTurma_id() != null) {
-            Turma turma = turmaRepository.findById(alunodto.getTurma_id())
+        if (alunodto.turmaId() != null) {
+            Turma turma = turmaRepository.findById(alunodto.turmaId())
                     .orElseThrow(TurmaNaoEncontradaException::new);
             alunoExistente.setTurma(turma);
         }
@@ -79,19 +83,24 @@ public class AlunoServiceImpl implements AlunoService{
     }
 
     @Override
-    public Optional<Aluno> buscarAlunoPorMatricula(Long matricula) {
-        return alunoRepository.findByMatricula(matricula);
+    public AlunoDTO buscarAlunoPorMatricula(Long matricula) {
+        Aluno aluno = alunoRepository.findByMatricula(matricula)
+                .orElseThrow(AlunoNaoEncontradoException::new);
+
+        return converterParaDTO(aluno);
     }
 
     @Override
-    public List<Aluno> listarAlunos() {
+    public List<AlunoDTO> listarAlunos() {
         List<Aluno> alunos = alunoRepository.findAll();
 
         if (alunos.isEmpty()) {
             throw new NenhumAlunoEncotradoException();
         }
 
-        return alunos;
+        return alunos.stream()
+                .map(this::converterParaDTO)
+                .toList();
     }
 
     public void atualizarPontuacao(Aluno aluno) {
@@ -122,24 +131,51 @@ public class AlunoServiceImpl implements AlunoService{
         }
     }
 
-    public List<Aluno> listarAlunosPorNome(String nome) {
+    public List<AlunoDTO> listarAlunosPorNome(String nome) {
         List<Aluno> alunos = alunoRepository.findAllByNomeContainingIgnoreCase(nome);
 
         if (alunos.isEmpty()) {
             throw new NenhumAlunoEncotradoException();
         }
 
-        return alunos;
+        return alunos.stream()
+                .map(this::converterParaDTO)
+                .toList();
     }
 
     @Override
-    public List<Aluno> buscarAlunosPorNomeETurma(String nome, Long idTurma) {
-        return alunoRepository.findByNomeContainingAndTurmaId(nome, idTurma);
+    public List<AlunoDTO> buscarAlunosPorNomeETurma(String nome, Long idTurma) {
+        return alunoRepository.findByNomeContainingAndTurmaId(nome, idTurma)
+                .stream()
+                .map(this::converterParaDTO)
+                .toList();
     }
 
     public List<Turma> listarTurmas(){
         return turmaRepository.findAll();
     }
+
+    private String buscarLivroAtual(Long matricula) {
+        List<StatusEmprestimo> status = List.of(StatusEmprestimo.ATIVO, StatusEmprestimo.ATRASADO);
+
+        return emprestimoRepository.findFirstByAluno_MatriculaAndStatusEmprestimoInOrderByDataEmprestimoDesc(matricula, status)
+                .map(emprestimo -> emprestimo.getLivro().getNome())
+                .orElse(null);
+    }
+
+    private AlunoDTO converterParaDTO(Aluno aluno) {
+        String livroAtual = buscarLivroAtual(aluno.getMatricula());
+
+        return new AlunoDTO(
+                aluno.getMatricula(),
+                aluno.getNome(),
+                aluno.getQtdBonus(),
+                aluno.getTurma().getId(),
+                aluno.getQtdLivrosLidos(),
+                livroAtual
+        );
+    }
+
 }
 
 
