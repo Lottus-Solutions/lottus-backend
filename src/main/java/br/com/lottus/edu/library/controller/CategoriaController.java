@@ -40,4 +40,11 @@ public class CategoriaController {
         categoriaService.removerCategoria(id);
         return ResponseEntity.status(HttpStatus.OK).body("Categoria removida com sucesso!");
     }
+
+    @Operation(summary = "Atualiza uma categoria existente", description = "Retorna a categoria atualizada")
+    @PutMapping("/{id}")
+    public ResponseEntity<Categoria> editarCategoria(@PathVariable Long id, @RequestBody Categoria categoria) {
+        Categoria categoriaAtualizada = categoriaService.editarCategoria(id, categoria);
+        return ResponseEntity.ok(categoriaAtualizada);
+    }
 }

@@ -35,7 +35,7 @@ public class CategoriaService {
         categoriaRepository.deleteById(id);
     }
 
-    public void editarCategoria(Long id, Categoria categoriaRequest) {
+    public Categoria editarCategoria(Long id, Categoria categoriaRequest) {
         Categoria categoria = categoriaRepository.findById(id)
                 .orElseThrow(CategoriaNaoEncontradaException::new);
 
@@ -48,6 +48,7 @@ public class CategoriaService {
 
         categoria.setNome(categoriaRequest.getNome());
         categoria.setCor(categoriaRequest.getCor());
+        return categoriaRepository.save(categoria);
     }
 
     private boolean categoriaExiste(Long id)  {
