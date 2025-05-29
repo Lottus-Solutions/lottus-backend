@@ -1,5 +1,7 @@
 package br.com.lottus.edu.library.model;
 
+import br.com.lottus.edu.library.exception.StatusInvalidoException;
+
 public enum StatusLivro {
     DISPONIVEL,
     RESERVADO;
@@ -10,6 +12,6 @@ public enum StatusLivro {
                 return s;
             }
         }
-        throw new IllegalArgumentException("Status inválido: " + status);
+        throw new StatusInvalidoException(status);
     }
 }

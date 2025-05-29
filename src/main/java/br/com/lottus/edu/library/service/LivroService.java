@@ -26,28 +26,14 @@ import java.util.List;
 @Service
 public class LivroService {
 
-    private static final Logger log = LoggerFactory.getLogger(LivroService.class);
-
     @Autowired
     private LivroRepository livroRepository;
 
     @Autowired
     private CategoriaRepository categoriaRepository;
 
-    public Page<LivroResponseDTO> listarTodos(int pagina, int tamanho) {
-
-        Pageable pagable = PageRequest.of(pagina, tamanho, Sort.by("id").descending());
-
-        Page<Livro> paginadeLivros =  livroRepository.findAll(pagable);
-
-        return paginadeLivros.map(this::converterParaDTO);
-    }
-
-
-
     public LivroResponseDTO cadastrarLivro(LivroRequestDTO livroRequestDTO) {
-        Categoria categoria = categoriaRepository.findById(livroRequestDTO.categoriaId())
-                .orElseThrow(CategoriaNaoEncontradaException::new);
+        Categoria categoria = buscarCategoria(livroRequestDTO.categoriaId());
 
         Livro livro = new Livro();
         livro.setNome(livroRequestDTO.nome());
@@ -59,15 +45,12 @@ public class LivroService {
         livro.setDescricao(livroRequestDTO.descricao());
         livro = livroRepository.save(livro);
 
-        return new LivroResponseDTO(livro.getId(), livro.getNome(), livro.getAutor(), livro.getQuantidade(), livro.getQuantidadeDisponivel(),livro.getStatus(), livro.getCategoria().getNome(), livro.getDescricao());
+        return converterParaDTO(livroRepository.save(livro));
     }
 
     public LivroResponseDTO atualizarLivro(LivroRequestDTO livroRequestDTO, Long id) {
-        Livro livro = livroRepository.findById(id)
-                .orElseThrow(LivroNaoEncontradoException::new);
-
-        Categoria categoria = categoriaRepository.findById(livroRequestDTO.categoriaId())
-                .orElseThrow(CategoriaNaoEncontradaException::new);
+        Livro livro = buscarLivro(id);
+        Categoria categoria = buscarCategoria(livroRequestDTO.categoriaId());
 
         livro.setNome(livroRequestDTO.nome());
         livro.setAutor(livroRequestDTO.autor());
@@ -75,9 +58,7 @@ public class LivroService {
         livro.setCategoria(categoria);
         livro.setDescricao(livroRequestDTO.descricao());
 
-        livro = livroRepository.save(livro);
-
-        return new LivroResponseDTO(livro.getId(), livro.getNome(), livro.getAutor(), livro.getQuantidade(), livro.getQuantidadeDisponivel(), livro.getStatus(), livro.getCategoria().getNome(), livro.getDescricao());
+        return converterParaDTO(livroRepository.save(livro));
     }
 
     public ResponseEntity<Void> removerLivro(Long id) {
@@ -90,60 +71,16 @@ public class LivroService {
     }
 
     @Transactional(readOnly = true) //Melhora a performance
-    public Page<LivroResponseDTO> buscarLivro(String valor, String status, Long categoriaId, int pagina, int tamanho) {
-
+    public Page<LivroResponseDTO> buscarLivro(String termoBusca, String status, Long categoriaId, int pagina, int tamanho) {
         Pageable pageable = PageRequest.of(pagina, tamanho, Sort.by("id").descending());
 
-        String termoBusca = valor == null ? "" : valor.trim();
+        String termoNormalizado = (termoBusca == null || termoBusca.isBlank()) ? null : termoBusca.trim();
+        List<StatusLivro> statusList = mapStatusParaLista(status);
 
-        List<StatusLivro> statusList;
-
-        if (status == null || status.isBlank()) {
-            statusList = List.of(StatusLivro.values());
-        } else {
-            statusList = List.of(StatusLivro.fromString(status));
-        }
-
-        return livroRepository.findByBuscaOuFiltro(termoBusca, statusList, categoriaId, pageable);
-    }
-
-    public List<LivroResponseDTO> filtrarPorCategoria(List<Long> categoriaIds) {
-        List<LivroResponseDTO> livros = livroRepository.findByCategoriaIdIn(categoriaIds).stream()
-                .map(livro -> new LivroResponseDTO(
-                        livro.getId(),
-                        livro.getNome(),
-                        livro.getAutor(),
-                        livro.getQuantidade(),
-                        livro.getQuantidadeDisponivel(),
-                        livro.getStatus(),
-                        livro.getCategoria().getNome(),
-                        livro.getDescricao()))
-                .toList();
-
-        if (livros.isEmpty()) {
-            throw new NenhumLivroEncontradoException();
-        }
-
-        return livros;
-    }
-
-        public Page<LivroResponseDTO> filtrarPorStatus(String status, int pagina, int tamanho) {
-        StatusLivro statusLivro = StatusLivro.fromString(status);
-
-        Pageable pageable = PageRequest.of(pagina, tamanho, Sort.by("id").descending());
-
-        Page<Livro> livrosPage = livroRepository.findByStatus(statusLivro, pageable);
-        Page<LivroResponseDTO> livros = livrosPage.map(this::converterParaDTO);
-
-        if (livros.isEmpty()) {
-            throw new NenhumLivroEncontradoException();
-        }
-
-        return livros;
+        return livroRepository.findByBuscaOuFiltro(termoNormalizado, statusList, categoriaId, pageable);
     }
 
     private LivroResponseDTO converterParaDTO(Livro livro) {
-
         return new LivroResponseDTO(
                 livro.getId(),
                 livro.getNome(),
@@ -156,5 +93,20 @@ public class LivroService {
         );
     }
 
+    private List<StatusLivro> mapStatusParaLista(String status) {
+        if (status == null || status.isBlank()) {
+            return List.of(StatusLivro.values());
+        }
+        return List.of(StatusLivro.fromString(status.trim()));
+    }
 
+    private Livro buscarLivro(Long id)  {
+        return livroRepository.findById(id)
+                .orElseThrow(LivroNaoEncontradoException::new);
+    }
+
+    private Categoria buscarCategoria(Long id) {
+        return categoriaRepository.findById(id)
+                .orElseThrow(CategoriaNaoEncontradaException::new);
+    }
 }
