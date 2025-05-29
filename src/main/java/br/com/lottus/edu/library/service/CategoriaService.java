@@ -20,7 +20,7 @@ public class CategoriaService {
     }
 
     public Categoria adcionarCategoria(Categoria categoria) {
-        if (categoriaRepository.existsByNome(categoria.getNome())) {
+        if (categoriaExiste(categoria.getId())) {
             throw new CategoriaJaExistenteException();
         }
 
@@ -28,11 +28,30 @@ public class CategoriaService {
     }
 
     public void removerCategoria(Long id) {
-        if (!categoriaRepository.existsById(id)) {
+        if (!categoriaExiste(id)) {
             throw new CategoriaNaoEncontradaException();
         }
 
         categoriaRepository.deleteById(id);
+    }
+
+    public void editarCategoria(Long id, Categoria categoriaRequest) {
+        Categoria categoria = categoriaRepository.findById(id)
+                .orElseThrow(CategoriaNaoEncontradaException::new);
+
+        List<Categoria> categorias = categoriaRepository.findAll();
+
+        if (categorias.stream()
+                .anyMatch(c -> c.getNome().equalsIgnoreCase(categoriaRequest.getNome()))) {
+            throw new CategoriaJaExistenteException();
+        }
+
+        categoria.setNome(categoriaRequest.getNome());
+        categoria.setCor(categoriaRequest.getCor());
+    }
+
+    private boolean categoriaExiste(Long id)  {
+        return categoriaRepository.existsById(id);
     }
 
 }
