@@ -1,6 +1,5 @@
 package br.com.lottus.edu.library.repository;
 
-import br.com.lottus.edu.library.dto.EmprestimoResponseDTO;
 import br.com.lottus.edu.library.model.Aluno;
 import br.com.lottus.edu.library.model.Emprestimo;
 import br.com.lottus.edu.library.model.Livro;
@@ -57,5 +56,6 @@ public interface EmprestimoRepository extends JpaRepository<Emprestimo, Long> {
             "LOWER(e.livro.nome) LIKE LOWER(CONCAT('%', :valor, '%')))")
     List<Emprestimo> findAtrasadosByAlunoNomeOrLivroNomeContainingIgnoreCase(String valor);
 
+    Optional<Emprestimo> findFirstByAluno_MatriculaAndStatusEmprestimoInOrderByDataEmprestimoDesc(Long matricula, List<StatusEmprestimo> statusList);
 
 }

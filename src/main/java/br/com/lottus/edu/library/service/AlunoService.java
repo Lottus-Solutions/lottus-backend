@@ -51,9 +51,9 @@ public interface AlunoService {
      * @param matricula o numero da matriculo do aluno
      * @return aluno o objeto aluno para alimentação dos seus dados no perfil
      */
-    Optional<Aluno> buscarAlunoPorMatricula(Long matricula);
+    AlunoDTO buscarAlunoPorMatricula(Long matricula);
 
-    List<Aluno> listarAlunos();
+    List<AlunoDTO> listarAlunos();
 
     /**
      * Listar alunos por nome
@@ -61,7 +61,7 @@ public interface AlunoService {
      * @param nome o nome do aluno a ser buscado
      * @return lista de alunos com o nome informado
      */
-    List<Aluno> listarAlunosPorNome(String nome);
+    List<AlunoDTO> listarAlunosPorNome(String nome);
 
     /**
      * lista alunos dentro de uma turma por nome
@@ -70,7 +70,7 @@ public interface AlunoService {
      * @param nome o nome do aluno a ser buscado
      * @param idTurma o id da turma a ser buscada
      */
-    List<Aluno> buscarAlunosPorNomeETurma(String nome, Long idTurma);
+    List<AlunoDTO> buscarAlunosPorNomeETurma(String nome, Long idTurma);
 
 
     List<Turma> listarTurmas();

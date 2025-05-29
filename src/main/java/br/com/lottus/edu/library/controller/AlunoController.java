@@ -91,10 +91,9 @@ public class AlunoController {
 
     @Operation(summary = "Obtem aluno pelo numero da Matricula", description = "Retorna o aluno encontrado")
     @GetMapping("/{matricula}")
-    public ResponseEntity<Aluno> buscarPorMatricula(@PathVariable Long matricula){
-        return alunoService.buscarAlunoPorMatricula(matricula)
-                .map(ResponseEntity::ok)
-                .orElse(ResponseEntity.notFound().build());
+    public ResponseEntity<AlunoDTO> buscarPorMatricula(@PathVariable Long matricula){
+        AlunoDTO alunoDTO = alunoService.buscarAlunoPorMatricula(matricula);
+        return ResponseEntity.ok(alunoDTO);
     }
 
     @Operation(summary = "Obtem alunos de uma determinada turma", description = "Retorna os alunos encontrados")
@@ -105,15 +104,15 @@ public class AlunoController {
 
     @Operation(summary = "Lista todos os alunos", description = "Retorna todos os alunos cadastrados")
     @GetMapping
-    public ResponseEntity<List<Aluno>> listar() {
-        List<Aluno> alunos = alunoService.listarAlunos();
+    public ResponseEntity<List<AlunoDTO>> listar() {
+        List<AlunoDTO> alunos = alunoService.listarAlunos();
         return ResponseEntity.ok(alunos);
     }
 
     @Operation(summary = "Lista alunos por nome", description = "Retorna todos os alunos com o nome informado")
     @GetMapping("nome/{nome}")
-    public ResponseEntity<List<Aluno>> listarAlunosPorNome(@PathVariable String nome) {
-        List<Aluno> alunos = alunoService.listarAlunosPorNome(nome);
+    public ResponseEntity<List<AlunoDTO>> listarAlunosPorNome(@PathVariable String nome) {
+        List<AlunoDTO> alunos = alunoService.listarAlunosPorNome(nome);
         return ResponseEntity.ok(alunos);
     }
 
@@ -125,7 +124,7 @@ public class AlunoController {
     }
     @Operation(summary = "Busca alunos por nome e turma", description = "Retorna uma lista dos alunos encontrados")
     @GetMapping("buscar-aluno-nome-turma/{turmaId}/{nome}")
-    public ResponseEntity<List<Aluno>> buscarAlunosPorNomeETurma(@PathVariable String nome, @PathVariable Long turmaId){
+    public ResponseEntity<List<AlunoDTO>> buscarAlunosPorNomeETurma(@PathVariable String nome, @PathVariable Long turmaId){
         return ResponseEntity.ok(alunoService.buscarAlunosPorNomeETurma(nome, turmaId));
     }
 
