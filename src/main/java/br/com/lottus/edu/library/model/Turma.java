@@ -1,9 +1,16 @@
 package br.com.lottus.edu.library.model;
 
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 @Entity
 @Table(name = "turma")
+@Getter
+@Setter
+@AllArgsConstructor
 public class Turma {
 
     @Id

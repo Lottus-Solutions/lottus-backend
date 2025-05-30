@@ -4,5 +4,5 @@ import br.com.lottus.edu.library.model.StatusEmprestimo;
 
 import java.time.LocalDate;
 
-public record RequestEmprestimo(Long id, String matriculaAluno, Long fk_livro, LocalDate dataEmprestimo) {
+public record RequestEmprestimo(Long id, Long matriculaAluno, Long fk_livro, LocalDate dataEmprestimo) {
 }
