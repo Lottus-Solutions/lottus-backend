@@ -1,6 +1,7 @@
 package br.com.lottus.edu.library.service;
 import br.com.lottus.edu.library.dto.RequestSolicitarResetSenha;
 import br.com.lottus.edu.library.dto.ResponseSolicitarReset;
+import br.com.lottus.edu.library.dto.UsuarioDTO;
 import br.com.lottus.edu.library.model.Usuario;
 import com.sendgrid.Response;
 
@@ -63,4 +64,6 @@ public interface UsuarioService {
      * @return true se o reset for bem-sucedido, false caso contrário
      */
     Boolean resetarSenha(String token, String novaSenha);
+
+    UsuarioDTO editarUsuario(Long id, Usuario usuario);
 }

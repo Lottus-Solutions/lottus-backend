@@ -1,19 +1,18 @@
 package br.com.lottus.edu.library.controller;
 
 
+import br.com.lottus.edu.library.dto.UsuarioDTO;
 import br.com.lottus.edu.library.model.Usuario;
 import br.com.lottus.edu.library.security.CustomUserPrincipal;
 import br.com.lottus.edu.library.security.SecurityConfig;
 import br.com.lottus.edu.library.service.UsuarioService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.net.Authenticator;
 
@@ -45,5 +44,11 @@ public class UsuarioController {
     public ResponseEntity<String> renovarSemestre() {
         usuarioService.renovarSemestre();
         return ResponseEntity.ok("Semestre renovado com sucesso");
+    }
+
+    @Operation(summary = "Edita os dados do usuário", description = "Retorna o nome e email do usuário")
+    @PutMapping("/{id}")
+    public ResponseEntity<UsuarioDTO> editarUsuario(@PathVariable Long id, @RequestBody Usuario usuario) {
+        return ResponseEntity.ok().body(usuarioService.editarUsuario(id, usuario));
     }
 }
