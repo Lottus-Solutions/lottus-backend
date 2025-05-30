@@ -41,11 +41,6 @@ public class CategoriaService {
 
         List<Categoria> categorias = categoriaRepository.findAll();
 
-        if (categorias.stream()
-                .anyMatch(c -> c.getNome().equalsIgnoreCase(categoriaRequest.getNome()))) {
-            throw new CategoriaJaExistenteException();
-        }
-
         categoria.setNome(categoriaRequest.getNome());
         categoria.setCor(categoriaRequest.getCor());
         return categoriaRepository.save(categoria);
