@@ -98,7 +98,7 @@ public class AlunoController {
 
     @Operation(summary = "Obtem alunos de uma determinada turma", description = "Retorna os alunos encontrados")
     @GetMapping("/turma/{turmaId}")
-    public ResponseEntity<Iterable<Aluno>> buscarPorTurma(@PathVariable Long turmaId){
+    public ResponseEntity<List<AlunoDTO>> buscarPorTurma(@PathVariable Long turmaId){
         return ResponseEntity.ok(alunoService.listarAlunosPorTurma(turmaId));
     }
 

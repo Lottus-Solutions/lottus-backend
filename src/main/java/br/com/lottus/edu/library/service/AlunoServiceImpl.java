@@ -76,10 +76,18 @@ public class AlunoServiceImpl implements AlunoService{
     }
 
     @Override
-    public List<Aluno> listarAlunosPorTurma(Long id) {
+    public List<AlunoDTO> listarAlunosPorTurma(Long id) {
         Optional<Turma> turma = turmaRepository.findById(id);
 
-        return alunoRepository.findAllByTurma(turma);
+        List<Aluno> alunos = alunoRepository.findAllByTurma(turma);
+
+        if (alunos.isEmpty()) {
+            throw new NenhumAlunoEncotradoException();
+        }
+
+        return alunos.stream()
+                .map(this::converterParaDTO)
+                .toList();
     }
 
     @Override

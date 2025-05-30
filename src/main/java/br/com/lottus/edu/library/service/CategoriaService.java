@@ -28,11 +28,26 @@ public class CategoriaService {
     }
 
     public void removerCategoria(Long id) {
-        if (!categoriaRepository.existsById(id)) {
+        if (!categoriaExiste(id)) {
             throw new CategoriaNaoEncontradaException();
         }
 
         categoriaRepository.deleteById(id);
+    }
+
+    public Categoria editarCategoria(Long id, Categoria categoriaRequest) {
+        Categoria categoria = categoriaRepository.findById(id)
+                .orElseThrow(CategoriaNaoEncontradaException::new);
+
+        List<Categoria> categorias = categoriaRepository.findAll();
+
+        categoria.setNome(categoriaRequest.getNome());
+        categoria.setCor(categoriaRequest.getCor());
+        return categoriaRepository.save(categoria);
+    }
+
+    private boolean categoriaExiste(Long id)  {
+        return categoriaRepository.existsById(id);
     }
 
 }

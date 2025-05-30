@@ -43,7 +43,7 @@ public interface AlunoService {
      * @param turma a turma a ter os alunos listados
      * @return Lis<Alunos> lista de alunos da turma
      */
-    List<Aluno> listarAlunosPorTurma(Long turma);
+    List<AlunoDTO> listarAlunosPorTurma(Long turma);
 
     /**
      * Buscar aluno por matricula

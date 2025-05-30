@@ -31,7 +31,7 @@ public class Livro {
     @JoinColumn(name = "fk_categoria", nullable = false)
     private Categoria categoria;
 
-    @OneToMany(mappedBy = "livro", cascade = CascadeType.REMOVE, orphanRemoval = true)
+    @OneToMany(mappedBy = "livro", cascade = CascadeType.REMOVE, orphanRemoval = true, fetch = FetchType.LAZY)
     private List<Emprestimo> emprestimos;
 
     public Livro() {}
