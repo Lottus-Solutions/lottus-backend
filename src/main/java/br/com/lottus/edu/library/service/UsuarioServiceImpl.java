@@ -1,6 +1,9 @@
 package br.com.lottus.edu.library.service;
 
 import br.com.lottus.edu.library.dto.ResponseSolicitarReset;
+import br.com.lottus.edu.library.dto.UsuarioDTO;
+import br.com.lottus.edu.library.exception.EmailJaCadastradoException;
+import br.com.lottus.edu.library.exception.UsuarioNaoEncontradoException;
 import br.com.lottus.edu.library.model.PasswordResetToken;
 import br.com.lottus.edu.library.model.Usuario;
 import br.com.lottus.edu.library.repository.PasswordResetTokenRepository;
@@ -13,6 +16,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Instant;
 import java.util.Date;
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -117,6 +121,26 @@ public class UsuarioServiceImpl implements UsuarioService {
         usuarioRepository.save(usuario);
 
         return true;
+    }
+
+    @Override
+    public UsuarioDTO editarUsuario(Long id, Usuario usuarioAtualizado) {
+        Usuario usuario = usuarioRepository.findById(id)
+                .orElseThrow(UsuarioNaoEncontradoException::new);
+
+        if (usuarioRepository.existsByEmailAndIdNot(usuarioAtualizado.getEmail(), id)) {
+            throw new EmailJaCadastradoException();
+        }
+
+        usuario.setNome(usuarioAtualizado.getNome());
+        usuario.setEmail(usuarioAtualizado.getEmail());
+
+        if (usuarioAtualizado.getSenha() != null && !usuarioAtualizado.getSenha().isBlank()) {
+            usuario.setSenha(passwordEncoder.encode(usuarioAtualizado.getSenha()));
+        }
+
+        usuarioRepository.save(usuario);
+        return new UsuarioDTO(usuarioAtualizado.getNome(), usuarioAtualizado.getEmail());
     }
 
 }
