@@ -10,6 +10,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 import java.util.List;
+import java.util.Optional;
 
 public interface LivroRepository extends JpaRepository<Livro, Long> {
 
@@ -33,4 +34,6 @@ public interface LivroRepository extends JpaRepository<Livro, Long> {
            @Param("status") List<StatusLivro> status,
            @Param("categoriaId") Long categoriaId,
            Pageable pageable);
+
+   Optional<Livro> findByNome(String livroAtual);
 }

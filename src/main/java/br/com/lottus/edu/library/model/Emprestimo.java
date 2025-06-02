@@ -27,11 +27,21 @@ public class Emprestimo {
     private LocalDate dataDevolucaoPrevista;
     private int diasAtrasados;
 
+    private int qtdRenovado;
+
     @Enumerated(EnumType.STRING)
     private StatusEmprestimo statusEmprestimo;
 
     public Long getId() {
         return id;
+    }
+
+    public int getQtdRenovado() {
+        return qtdRenovado;
+    }
+
+    public void setQtdRenovado(int qtdRenovado) {
+        this.qtdRenovado = qtdRenovado;
     }
 
     public void setId(Long id) {

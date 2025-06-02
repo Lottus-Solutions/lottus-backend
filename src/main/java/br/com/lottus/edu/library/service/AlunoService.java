@@ -1,6 +1,7 @@
 package br.com.lottus.edu.library.service;
 
 import br.com.lottus.edu.library.dto.AlunoDTO;
+import br.com.lottus.edu.library.dto.PerfilAlunoResponse;
 import br.com.lottus.edu.library.model.Aluno;
 import br.com.lottus.edu.library.model.Turma;
 
@@ -78,5 +79,13 @@ public interface AlunoService {
     void atualizarPontuacao(Aluno aluno);
 
     void atualizarLivrosLidos(Aluno aluno);
+
+
+    /**
+     * Constroi o perfil do aluno com suas respectivas informações
+     * @param idAluno o id do aluno
+     * @return PerfilAluno o perfil do aluno construido
+     */
+    PerfilAlunoResponse construirPerfil(Long idAluno);
 
 }

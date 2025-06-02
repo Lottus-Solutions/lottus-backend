@@ -1,19 +1,20 @@
 package br.com.lottus.edu.library.service;
 
 import br.com.lottus.edu.library.dto.AlunoDTO;
+import br.com.lottus.edu.library.dto.PerfilAlunoResponse;
 import br.com.lottus.edu.library.exception.NenhumAlunoEncotradoException;
 import br.com.lottus.edu.library.exception.AlunoNaoEncontradoException;
 import br.com.lottus.edu.library.exception.TurmaNaoEncontradaException;
-import br.com.lottus.edu.library.model.Aluno;
-import br.com.lottus.edu.library.model.Emprestimo;
-import br.com.lottus.edu.library.model.StatusEmprestimo;
-import br.com.lottus.edu.library.model.Turma;
+import br.com.lottus.edu.library.model.*;
 import br.com.lottus.edu.library.repository.AlunoRepository;
 import br.com.lottus.edu.library.repository.EmprestimoRepository;
+import br.com.lottus.edu.library.repository.LivroRepository;
 import br.com.lottus.edu.library.repository.TurmaRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
@@ -27,6 +28,8 @@ public class AlunoServiceImpl implements AlunoService{
 
     @Autowired
     private EmprestimoRepository emprestimoRepository;
+    @Autowired
+    private LivroRepository livroRepository;
 
     public Aluno adicionarAluno(AlunoDTO alunodto) {
         Turma turma = turmaRepository.findById(alunodto.turmaId())
@@ -119,6 +122,34 @@ public class AlunoServiceImpl implements AlunoService{
     public void atualizarLivrosLidos(Aluno aluno) {
         aluno.setQtdLivrosLidos(aluno.getQtdLivrosLidos() + 1);
         alunoRepository.save(aluno);
+    }
+
+    @Override
+    @Transactional
+    public PerfilAlunoResponse construirPerfil(Long idAluno) {
+        Aluno aluno = alunoRepository.findByMatricula(idAluno)
+                .orElseThrow(AlunoNaoEncontradoException::new);
+
+        AlunoDTO alunoDTO = converterParaDTO(aluno);
+
+        Boolean isAtrasado = null;
+
+        List<Emprestimo> emprestimosAtrasados = emprestimoRepository.findByAluno_MatriculaAndStatusEmprestimoIn(idAluno, Collections.singleton(StatusEmprestimo.ATRASADO));
+
+        isAtrasado = emprestimosAtrasados.isEmpty();
+
+        String autor = null;
+
+        List<StatusEmprestimo> status = List.of(StatusEmprestimo.ATIVO, StatusEmprestimo.ATRASADO);
+
+        Optional<Livro> livroatualObj = Optional.ofNullable(emprestimoRepository.findFirstByAluno_MatriculaAndStatusEmprestimoInOrderByDataEmprestimoDesc(idAluno, status).get().getLivro());
+
+        if(livroatualObj.isPresent()){
+            autor = livroatualObj.get().getAutor();
+        }
+
+        return new PerfilAlunoResponse(alunoDTO, isAtrasado, autor);
+
     }
 
     public void resetarBonus() {

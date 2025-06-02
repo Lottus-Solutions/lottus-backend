@@ -1,6 +1,7 @@
 package br.com.lottus.edu.library.controller;
 
 import br.com.lottus.edu.library.dto.AlunoDTO;
+import br.com.lottus.edu.library.dto.PerfilAlunoResponse;
 import br.com.lottus.edu.library.model.Aluno;
 import br.com.lottus.edu.library.model.Turma;
 import br.com.lottus.edu.library.repository.AlunoRepository;
@@ -87,6 +88,14 @@ public class AlunoController {
         }
 
 
+    }
+
+    @Operation(summary = "Constrói perfil do aluno pelo numero da matricula", description = "Retorna as informaçoes para construção do perfil")
+    @GetMapping("/perfil/{matricula}")
+    public ResponseEntity<PerfilAlunoResponse> construirPerfil(@PathVariable Long matricula){
+        PerfilAlunoResponse perfil = alunoService.construirPerfil(matricula);
+
+        return ResponseEntity.ok(perfil);
     }
 
     @Operation(summary = "Obtem aluno pelo numero da Matricula", description = "Retorna o aluno encontrado")

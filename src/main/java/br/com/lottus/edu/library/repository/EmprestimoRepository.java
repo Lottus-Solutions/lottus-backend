@@ -11,6 +11,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 
@@ -58,4 +59,6 @@ public interface EmprestimoRepository extends JpaRepository<Emprestimo, Long> {
 
     Optional<Emprestimo> findFirstByAluno_MatriculaAndStatusEmprestimoInOrderByDataEmprestimoDesc(Long matricula, List<StatusEmprestimo> statusList);
 
+
+    List<Emprestimo> findByAluno_MatriculaAndStatusEmprestimoIn(Long matricula, Collection<StatusEmprestimo> statuses);
 }
