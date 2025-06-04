@@ -35,5 +35,5 @@ public interface LivroRepository extends JpaRepository<Livro, Long> {
            @Param("categoriaId") Long categoriaId,
            Pageable pageable);
 
-   Optional<Livro> findByNome(String livroAtual);
+   Integer countByCategoriaId(Long categoriaId);
 }
