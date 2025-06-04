@@ -1,9 +1,13 @@
 package br.com.lottus.edu.library.service;
 
+import br.com.lottus.edu.library.dto.EmprestimoResponseDTO;
 import br.com.lottus.edu.library.dto.RequestEmprestimo;
+import br.com.lottus.edu.library.dto.VerificarRenovadoResponse;
 import br.com.lottus.edu.library.model.Aluno;
 import br.com.lottus.edu.library.model.Emprestimo;
 import br.com.lottus.edu.library.model.Livro;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -16,7 +20,7 @@ public interface EmprestimoService {
      *
      * @return Lista de empréstimos.
      */
-    List<Emprestimo> listarEmprestimos();
+    Page<EmprestimoResponseDTO> listarEmprestimos(String busca, boolean atrasados, Pageable pageable);
 
     /**
      * Renovar um empréstimo existente.
@@ -45,11 +49,10 @@ public interface EmprestimoService {
     /**
      * Buscar empréstimos pelo valor informado (pode ser ID do aluno, ID do livro ou outro critério).
      *
-     * @param livroId o id do livro a ser buscado.
-     * @param matricula a matricula do aluno a ser buscado.
+     * @param valor o valor generico para busca do emprestimo.
      * @return Lista de empréstimos correspondentes ao critério de busca.
      */
-    List<Emprestimo> buscarEmprestimos(Long livroId, String matricula);
+//    List<Emprestimo> buscarEmprestimos(String valor);
 
     /**
      * Buscar o histórico de empréstimos de um livro específico.
@@ -65,7 +68,14 @@ public interface EmprestimoService {
      * @param matricula a matricula do aluno.
      * @return Lista de empréstimos feitos pelo aluno informado.
      */
-    List<Emprestimo> buscarHistoricoAluno(String matricula);
+    List<Emprestimo> buscarHistoricoAluno(Long matricula);
 
     List<Emprestimo> filtrarEmprestimosAtrasados();
+
+    /**
+     *
+     * @param id o id do emprestimo.
+     * @return DTO correspondente
+     */
+    VerificarRenovadoResponse verificarQuantidadeRenovado(Long id);
 }
