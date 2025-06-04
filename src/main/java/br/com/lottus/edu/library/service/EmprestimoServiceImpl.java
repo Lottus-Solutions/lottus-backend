@@ -75,6 +75,8 @@ public class EmprestimoServiceImpl implements EmprestimoService{
         }else{
             Emprestimo emprestimo = emprestimoAAtualizar.get();
             emprestimo.setDataDevolucaoPrevista(emprestimo.getDataDevolucaoPrevista().plusDays(qtdDias));
+            emprestimo.setStatusEmprestimo(StatusEmprestimo.ATIVO);
+            emprestimo.setDiasAtrasados(0);
             emprestimoRepository.save(emprestimo);
             return true;
         }
