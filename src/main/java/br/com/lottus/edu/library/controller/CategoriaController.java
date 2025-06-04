@@ -1,5 +1,6 @@
 package br.com.lottus.edu.library.controller;
 
+import br.com.lottus.edu.library.dto.CategoriaDTO;
 import br.com.lottus.edu.library.model.Categoria;
 import br.com.lottus.edu.library.service.CategoriaService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -22,15 +23,15 @@ public class CategoriaController {
 
     @Operation(summary = "Lista todas as categorias", description = "Retorna uma lista de todas as categorias")
     @GetMapping
-    public ResponseEntity<List<Categoria>> listarTodas() {
-        List<Categoria> categorias = categoriaService.listarCategorias();
+    public ResponseEntity<List<CategoriaDTO>> listarTodas() {
+        List<CategoriaDTO> categorias = categoriaService.listarCategorias();
         return ResponseEntity.ok(categorias);
     }
 
     @Operation(summary = "Adiciona uma nova categoria", description = "Retorna um status created")
     @PostMapping
     public ResponseEntity<Categoria> adicionarCategoria(@RequestBody Categoria categoria) {
-        categoriaService.adcionarCategoria(categoria);
+        categoriaService.adicionarCategoria(categoria);
         return ResponseEntity.status(HttpStatus.CREATED).body(categoria);
     }
 
