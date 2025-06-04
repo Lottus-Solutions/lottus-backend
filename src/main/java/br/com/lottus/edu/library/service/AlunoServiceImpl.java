@@ -14,7 +14,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDate;
 import java.util.Collections;
+import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 
@@ -132,24 +134,28 @@ public class AlunoServiceImpl implements AlunoService{
 
         AlunoDTO alunoDTO = converterParaDTO(aluno);
 
-        Boolean isAtrasado = null;
 
-        List<Emprestimo> emprestimosAtrasados = emprestimoRepository.findByAluno_MatriculaAndStatusEmprestimoIn(idAluno, Collections.singleton(StatusEmprestimo.ATRASADO));
+        List<Emprestimo> emprestimosAtrasados = emprestimoRepository.findByAluno_MatriculaAndStatusEmprestimoIn(
+                idAluno, Collections.singleton(StatusEmprestimo.ATRASADO)
+        );
+        boolean temAtraso = !emprestimosAtrasados.isEmpty();
 
-        isAtrasado = emprestimosAtrasados.isEmpty();
+        Livro livroEmprestado = null;
+        LocalDate dataDevolucaoPrevista = null;
 
-        String autor = null;
+        List<StatusEmprestimo> statusParaLivroAtual = List.of(StatusEmprestimo.ATIVO, StatusEmprestimo.ATRASADO);
 
-        List<StatusEmprestimo> status = List.of(StatusEmprestimo.ATIVO, StatusEmprestimo.ATRASADO);
+        Optional<Emprestimo> optionalEmprestimoAtual = emprestimoRepository
+                .findFirstByAluno_MatriculaAndStatusEmprestimoInOrderByDataEmprestimoDesc(idAluno, statusParaLivroAtual);
 
-        Optional<Livro> livroatualObj = Optional.ofNullable(emprestimoRepository.findFirstByAluno_MatriculaAndStatusEmprestimoInOrderByDataEmprestimoDesc(idAluno, status).get().getLivro());
-
-        if(livroatualObj.isPresent()){
-            autor = livroatualObj.get().getAutor();
+        if (optionalEmprestimoAtual.isPresent()) {
+            Emprestimo emprestimoAtual = optionalEmprestimoAtual.get();
+            livroEmprestado = emprestimoAtual.getLivro();
+            dataDevolucaoPrevista = emprestimoAtual.getDataDevolucaoPrevista();
         }
 
-        return new PerfilAlunoResponse(alunoDTO, isAtrasado, autor);
 
+        return new PerfilAlunoResponse(alunoDTO, temAtraso, livroEmprestado, dataDevolucaoPrevista);
     }
 
     public void resetarBonus() {
