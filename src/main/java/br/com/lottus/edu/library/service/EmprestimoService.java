@@ -2,6 +2,7 @@ package br.com.lottus.edu.library.service;
 
 import br.com.lottus.edu.library.dto.EmprestimoResponseDTO;
 import br.com.lottus.edu.library.dto.RequestEmprestimo;
+import br.com.lottus.edu.library.dto.VerificarRenovadoResponse;
 import br.com.lottus.edu.library.model.Aluno;
 import br.com.lottus.edu.library.model.Emprestimo;
 import br.com.lottus.edu.library.model.Livro;
@@ -70,4 +71,11 @@ public interface EmprestimoService {
     List<Emprestimo> buscarHistoricoAluno(Long matricula);
 
     List<Emprestimo> filtrarEmprestimosAtrasados();
+
+    /**
+     *
+     * @param id o id do emprestimo.
+     * @return DTO correspondente
+     */
+    VerificarRenovadoResponse verificarQuantidadeRenovado(Long id);
 }

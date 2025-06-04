@@ -2,6 +2,7 @@ package br.com.lottus.edu.library.service;
 
 import br.com.lottus.edu.library.dto.EmprestimoResponseDTO;
 import br.com.lottus.edu.library.dto.RequestEmprestimo;
+import br.com.lottus.edu.library.dto.VerificarRenovadoResponse;
 import br.com.lottus.edu.library.exception.*;
 import br.com.lottus.edu.library.model.*;
 import br.com.lottus.edu.library.repository.AlunoRepository;
@@ -77,10 +78,13 @@ public class EmprestimoServiceImpl implements EmprestimoService{
             emprestimo.setDataDevolucaoPrevista(emprestimo.getDataDevolucaoPrevista().plusDays(qtdDias));
             emprestimo.setStatusEmprestimo(StatusEmprestimo.ATIVO);
             emprestimo.setDiasAtrasados(0);
+            emprestimo.setQtdRenovado(emprestimo.getQtdRenovado() + 1);
             emprestimoRepository.save(emprestimo);
             return true;
         }
     }
+
+
 
 
 
@@ -222,6 +226,14 @@ public class EmprestimoServiceImpl implements EmprestimoService{
         setApenasAtrasados(true);
 
        return emprestimoRepository.findByStatusEmprestimo(StatusEmprestimo.ATRASADO);
+    }
+
+    @Override
+    public VerificarRenovadoResponse verificarQuantidadeRenovado(Long id) {
+        Emprestimo emprestimo = emprestimoRepository.findById(id)
+                .orElseThrow(EmprestimoNaoEncontradoException::new);
+
+        return new VerificarRenovadoResponse(emprestimo.getQtdRenovado() > 0, emprestimo.getQtdRenovado());
     }
 
     public void resetarStatus() {

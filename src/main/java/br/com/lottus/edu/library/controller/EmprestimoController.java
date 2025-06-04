@@ -3,6 +3,7 @@ package br.com.lottus.edu.library.controller;
 
 import br.com.lottus.edu.library.dto.EmprestimoResponseDTO;
 import br.com.lottus.edu.library.dto.RequestEmprestimo;
+import br.com.lottus.edu.library.dto.VerificarRenovadoResponse;
 import br.com.lottus.edu.library.model.Emprestimo;
 import br.com.lottus.edu.library.repository.AlunoRepository;
 import br.com.lottus.edu.library.repository.EmprestimoRepository;
@@ -95,6 +96,12 @@ public class EmprestimoController {
         } else {
             return ResponseEntity.notFound().build();
         }
+    }
+
+    @GetMapping("/{id}/verificar-quantidade-renovado")
+    public ResponseEntity<VerificarRenovadoResponse> verificarQuantidadeRenovado(@PathVariable Long id) {
+
+        return ResponseEntity.ok(emprestimoService.verificarQuantidadeRenovado(id));
     }
 
 //    @GetMapping("/buscar")
