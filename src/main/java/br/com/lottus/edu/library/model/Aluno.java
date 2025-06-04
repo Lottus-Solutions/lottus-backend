@@ -28,8 +28,6 @@ public class Aluno {
     @JsonIgnore
     private List<Emprestimo> emprestimos = new ArrayList<>();
 
-    private String livroAtual;
-
     public void resetarBonus() {
         this.qtdBonus = 0.0;
     }
@@ -87,14 +85,6 @@ public class Aluno {
         return emprestimos;
     }
 
-    public String getLivroAtual() {
-        return livroAtual;
-    }
-
-    public void setLivroAtual(String livroAtual) {
-        this.livroAtual = livroAtual;
-    }
-
     @Override
     public String toString() {
         return "Aluno{" +
@@ -106,4 +96,3 @@ public class Aluno {
                 '}';
     }
 }
-
