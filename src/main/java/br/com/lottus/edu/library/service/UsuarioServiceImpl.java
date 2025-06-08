@@ -34,6 +34,7 @@ public class UsuarioServiceImpl implements UsuarioService {
     @Transactional
     public Usuario cadastrarUsuario(Usuario usuario) {
         usuario.setDtRegistro(new Date());
+        usuario.setIdAvatar(1);
 
         return usuarioRepository.save(usuario);
     }
@@ -128,19 +129,24 @@ public class UsuarioServiceImpl implements UsuarioService {
         Usuario usuario = usuarioRepository.findById(id)
                 .orElseThrow(UsuarioNaoEncontradoException::new);
 
-        if (usuarioRepository.existsByEmailAndIdNot(usuarioAtualizado.getEmail(), id)) {
-            throw new EmailJaCadastradoException();
+        if (!usuario.getEmail().equals(usuarioAtualizado.getEmail())) {
+            boolean emailJaCadastrado = usuarioRepository.existsByEmailAndIdNot(usuarioAtualizado.getEmail(), id);
+
+            if (emailJaCadastrado) {
+                throw new EmailJaCadastradoException();
+            }
         }
 
         usuario.setNome(usuarioAtualizado.getNome());
         usuario.setEmail(usuarioAtualizado.getEmail());
+        usuario.setIdAvatar(usuarioAtualizado.getIdAvatar());
 
         if (usuarioAtualizado.getSenha() != null && !usuarioAtualizado.getSenha().isBlank()) {
             usuario.setSenha(passwordEncoder.encode(usuarioAtualizado.getSenha()));
         }
 
         usuarioRepository.save(usuario);
-        return new UsuarioDTO(usuarioAtualizado.getNome(), usuarioAtualizado.getEmail());
+        return new UsuarioDTO(usuarioAtualizado.getNome(), usuarioAtualizado.getEmail(), usuarioAtualizado.getIdAvatar());
     }
 
 }
