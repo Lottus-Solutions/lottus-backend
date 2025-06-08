@@ -1,6 +1,8 @@
 package br.com.lottus.edu.library.model;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotEmpty;
 
 @Entity
 @Table(name = "categoria")
@@ -10,6 +12,9 @@ public class Categoria {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @NotEmpty
+    @NotBlank
+    @Column(unique = true)
     private String nome;
     private String cor;
 

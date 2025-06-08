@@ -29,18 +29,20 @@ public class TurmaService {
     }
 
     public Turma adicionarTurma(Turma turma) {
-        if (turmaRepository.existsBySerieIgnoreCase(turma.getSerie())) {
+        if (turmaRepository.existsBySerie(turma.getSerie())) {
             throw new TurmaJaCadastradaException();
         }
 
         return turmaRepository.save(turma);
     }
 
-    public void removerTurma(Long id) {
+    public Boolean removerTurma(Long id) {
         Turma turma = turmaRepository.findById(id)
                 .orElseThrow(TurmaNaoEncontradaException::new);
 
-        turmaRepository.delete(turma);
+         turmaRepository.delete(turma);
+
+         return true;
     }
 
     public Turma editarTurma(Long matricula, Turma turmaRequest) {

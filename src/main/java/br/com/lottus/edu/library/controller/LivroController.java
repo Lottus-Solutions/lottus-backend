@@ -6,6 +6,7 @@ import br.com.lottus.edu.library.service.CategoriaService;
 import br.com.lottus.edu.library.service.LivroService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -28,23 +29,23 @@ public class LivroController {
 
     @Operation(summary = "Adiciona um novo livro", description = "Retorna o livro cadastrado com um status created")
     @PostMapping
-    public ResponseEntity<LivroResponseDTO> adicionarLivro(@RequestBody LivroRequestDTO livroDTO) {
+    public ResponseEntity<LivroResponseDTO> adicionarLivro(@Valid @RequestBody LivroRequestDTO livroDTO) {
         LivroResponseDTO response = livroService.cadastrarLivro(livroDTO);
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
     @Operation(summary = "atualiza um livro existente", description = "Retorna o livro atualizado")
     @PutMapping("/{id}")
-    public ResponseEntity<LivroResponseDTO> atualizarLivro(@RequestBody LivroRequestDTO livroRequestDTO, @PathVariable Long id) {
+    public ResponseEntity<LivroResponseDTO> atualizarLivro(@Valid @RequestBody LivroRequestDTO livroRequestDTO, @PathVariable Long id) {
        LivroResponseDTO response = livroService.atualizarLivro(livroRequestDTO, id);
        return ResponseEntity.status(HttpStatus.OK).body(response);
     }
 
     @Operation(summary = "Remove um livro", description = "Retorna uma mensagem informando o resultado da operação")
     @DeleteMapping("/{id}")
-    public ResponseEntity<String> removerLivro(@PathVariable Long id) {
+    public ResponseEntity<Void> removerLivro(@PathVariable Long id) {
         livroService.removerLivro(id);
-        return ResponseEntity.ok().body("Livro removido com sucesso");
+        return ResponseEntity.noContent().build();
     }
 
     @Operation(summary = "Busca livros com filtros opcionais (nome, autor, status, categoria)", description = "Retorna uma página de livros com base nos filtros informados.")

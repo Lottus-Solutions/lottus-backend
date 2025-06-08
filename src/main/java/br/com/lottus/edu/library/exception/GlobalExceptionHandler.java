@@ -48,6 +48,11 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
     }
 
+    @ExceptionHandler(TurmaJaCadastradaException.class)
+    public ResponseEntity<String> handleTurmaJaCadastrada(TurmaJaCadastradaException e) {
+        return ResponseEntity.status(HttpStatus.CONFLICT).body(e.getMessage());
+    }
+
     @ExceptionHandler(StatusInvalidoException.class)
     public ResponseEntity<String> handleStatusInvalido(StatusInvalidoException e) {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
@@ -57,4 +62,30 @@ public class GlobalExceptionHandler {
     public ResponseEntity<String> handleEmailJaCadastrado(EmailJaCadastradoException e) {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
     }
+
+    @ExceptionHandler(TurmaNaoExisteException.class)
+    public ResponseEntity<String> handleTurmaNaoExiste(TurmaNaoExisteException e){
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+    }
+
+    @ExceptionHandler(AlunoNaoEncontradoException.class)
+    public ResponseEntity<String> handleAlunoNaoEncontrado(AlunoNaoEncontradoException e ){
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
+    }
+
+    @ExceptionHandler(CategoriaJaExistenteException.class)
+    public ResponseEntity<String> handleCategoriaJaExistente(CategoriaJaExistenteException e) {
+        return ResponseEntity.status(HttpStatus.CONFLICT).body(e.getMessage());
+    }
+
+    @ExceptionHandler(CategoriaInvalidaException.class)
+    public ResponseEntity<String> handleCategoriaInvalida(CategoriaInvalidaException e){
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+    }
+
+    @ExceptionHandler(LivroComEmprestimosAtivosException.class)
+    public ResponseEntity<String> handleLivroComEmprestimosAtivos(LivroComEmprestimosAtivosException e) {
+        return ResponseEntity.status(HttpStatus.CONFLICT).body(e.getMessage());
+    }
+
 }

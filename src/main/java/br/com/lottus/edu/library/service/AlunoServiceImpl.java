@@ -5,6 +5,7 @@ import br.com.lottus.edu.library.dto.PerfilAlunoResponse;
 import br.com.lottus.edu.library.exception.NenhumAlunoEncotradoException;
 import br.com.lottus.edu.library.exception.AlunoNaoEncontradoException;
 import br.com.lottus.edu.library.exception.TurmaNaoEncontradaException;
+import br.com.lottus.edu.library.exception.TurmaNaoExisteException;
 import br.com.lottus.edu.library.model.*;
 import br.com.lottus.edu.library.repository.AlunoRepository;
 import br.com.lottus.edu.library.repository.EmprestimoRepository;
@@ -34,8 +35,9 @@ public class AlunoServiceImpl implements AlunoService{
     private LivroRepository livroRepository;
 
     public Aluno adicionarAluno(AlunoDTO alunodto) {
+
         Turma turma = turmaRepository.findById(alunodto.turmaId())
-                .orElseThrow(()-> new RuntimeException("Turma do aluno não encontrada"));
+                .orElseThrow(TurmaNaoExisteException::new);
 
         Aluno aluno = new Aluno();
         aluno.setMatricula(alunodto.matricula());

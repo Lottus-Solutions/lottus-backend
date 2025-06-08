@@ -88,7 +88,7 @@ public class UsuarioServiceImpl implements UsuarioService {
 
             String token = passwordResetToken.getToken().toString();
 
-            return new ResponseSolicitarReset("http://localhost:8080/auth/resetar-senha?ticket="
+            return new ResponseSolicitarReset("http://localhost:5173/auth/resetar-senha?ticket="
                     + publicToken, token);
 
         }

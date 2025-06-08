@@ -2,13 +2,13 @@ package br.com.lottus.edu.library.service;
 
 import br.com.lottus.edu.library.dto.LivroRequestDTO;
 import br.com.lottus.edu.library.dto.LivroResponseDTO;
-import br.com.lottus.edu.library.exception.CategoriaNaoEncontradaException;
-import br.com.lottus.edu.library.exception.LivroNaoEncontradoException;
-import br.com.lottus.edu.library.exception.NenhumLivroEncontradoException;
+import br.com.lottus.edu.library.exception.*;
 import br.com.lottus.edu.library.model.Categoria;
 import br.com.lottus.edu.library.model.Livro;
+import br.com.lottus.edu.library.model.StatusEmprestimo;
 import br.com.lottus.edu.library.model.StatusLivro;
 import br.com.lottus.edu.library.repository.CategoriaRepository;
+import br.com.lottus.edu.library.repository.EmprestimoRepository;
 import br.com.lottus.edu.library.repository.LivroRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -31,6 +31,9 @@ public class LivroService {
 
     @Autowired
     private CategoriaRepository categoriaRepository;
+
+    @Autowired
+    EmprestimoRepository emprestimoRepository;
 
     public LivroResponseDTO cadastrarLivro(LivroRequestDTO livroRequestDTO) {
         Categoria categoria = buscarCategoria(livroRequestDTO.categoriaId());
@@ -64,6 +67,12 @@ public class LivroService {
     public ResponseEntity<Void> removerLivro(Long id) {
         if (!livroRepository.existsById(id)) {
             throw new LivroNaoEncontradoException();
+        }
+
+        List<StatusEmprestimo> statusAtivo = List.of(StatusEmprestimo.ATIVO);
+
+        if(emprestimoRepository.existsByLivro_IdAndStatusEmprestimoIn(id, statusAtivo)){
+            throw new LivroComEmprestimosAtivosException();
         }
 
         livroRepository.deleteById(id);
@@ -107,6 +116,6 @@ public class LivroService {
 
     private Categoria buscarCategoria(Long id) {
         return categoriaRepository.findById(id)
-                .orElseThrow(CategoriaNaoEncontradaException::new);
+                .orElseThrow(CategoriaInvalidaException::new);
     }
 }

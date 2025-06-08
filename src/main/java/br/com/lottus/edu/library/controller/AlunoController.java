@@ -9,6 +9,7 @@ import br.com.lottus.edu.library.service.AlunoService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import org.apache.catalina.connector.Response;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -37,13 +38,9 @@ public class AlunoController {
     }
     @Operation(summary = "Cadastra um novo aluno", description = "Retorna o aluno cadastrado", security = @SecurityRequirement(name= "bearerAuth"))
     @PostMapping("/cadastrar")
-        public ResponseEntity<Aluno> adicionarAluno(@RequestBody AlunoDTO alunodto){
+        public ResponseEntity<Aluno> adicionarAluno(@Valid @RequestBody AlunoDTO alunodto){
 
-            System.out.println("Objeto alunoDTO" + alunodto.toString());
-            Aluno newAluno = alunoService.adicionarAluno(alunodto);
-            System.out.println("novo aluno a ser cadastrado" + newAluno.toString());
-
-            return ResponseEntity.ok(newAluno);
+           return ResponseEntity.status(HttpStatus.CREATED).body(alunoService.adicionarAluno(alunodto));
         }
 
     @Operation(summary = "Remover aluno pelo numero da Matricula", description = "Retorna uma mensagem informado sobre o resultado da operação")

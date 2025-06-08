@@ -49,6 +49,10 @@ public class CategoriaService {
         Categoria categoria = categoriaRepository.findById(id)
                 .orElseThrow(CategoriaNaoEncontradaException::new);
 
+        if(categoriaRepository.existsByNome(categoriaRequest.getNome())){
+            throw new CategoriaJaExistenteException();
+        }
+
         List<Categoria> categorias = categoriaRepository.findAll();
 
         categoria.setNome(categoriaRequest.getNome());

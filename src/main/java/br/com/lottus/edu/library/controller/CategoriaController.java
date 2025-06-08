@@ -5,6 +5,7 @@ import br.com.lottus.edu.library.model.Categoria;
 import br.com.lottus.edu.library.service.CategoriaService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -30,16 +31,17 @@ public class CategoriaController {
 
     @Operation(summary = "Adiciona uma nova categoria", description = "Retorna um status created")
     @PostMapping
-    public ResponseEntity<Categoria> adicionarCategoria(@RequestBody Categoria categoria) {
+    public ResponseEntity<Categoria> adicionarCategoria(@Valid @RequestBody Categoria categoria) {
         categoriaService.adicionarCategoria(categoria);
         return ResponseEntity.status(HttpStatus.CREATED).body(categoria);
     }
 
     @Operation(summary = "Remove uma categoria", description = "Retorna uma mensagem informando o resultado da operação")
     @DeleteMapping("/{id}")
-    public ResponseEntity<String> removerCategoria(@PathVariable Long id) {
+    public ResponseEntity<Void> removerCategoria(@PathVariable Long id) {
         categoriaService.removerCategoria(id);
-        return ResponseEntity.status(HttpStatus.OK).body("Categoria removida com sucesso!");
+
+        return ResponseEntity.noContent().build();
     }
 
     @Operation(summary = "Atualiza uma categoria existente", description = "Retorna a categoria atualizada")

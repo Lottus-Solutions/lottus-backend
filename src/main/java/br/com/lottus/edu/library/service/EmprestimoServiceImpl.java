@@ -177,7 +177,7 @@ public class EmprestimoServiceImpl implements EmprestimoService{
     @Override
     public List<Emprestimo> buscarHistoricoLivro(Long idLivro) {
         Livro livro = livroRepository.findById(idLivro)
-                .orElseThrow(() -> new RuntimeException("Livro não encontrado"));
+                .orElseThrow(LivroNaoEncontradoException::new);
 
         List<Emprestimo> listaFinalizados =  emprestimoRepository
                 .findByStatusEmprestimo(StatusEmprestimo.FINALIZADO);

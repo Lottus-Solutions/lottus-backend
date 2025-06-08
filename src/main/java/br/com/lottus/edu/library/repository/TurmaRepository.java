@@ -6,5 +6,5 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface TurmaRepository extends JpaRepository<Turma, Long> {
-    Boolean existsBySerieIgnoreCase(String serie);
+    Boolean existsBySerie(String serie);
 }

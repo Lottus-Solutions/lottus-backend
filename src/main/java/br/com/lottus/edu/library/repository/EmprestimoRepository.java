@@ -59,6 +59,8 @@ public interface EmprestimoRepository extends JpaRepository<Emprestimo, Long> {
 
     Optional<Emprestimo> findFirstByAluno_MatriculaAndStatusEmprestimoInOrderByDataEmprestimoDesc(Long matricula, List<StatusEmprestimo> statusList);
 
-
     List<Emprestimo> findByAluno_MatriculaAndStatusEmprestimoIn(Long matricula, Collection<StatusEmprestimo> statuses);
+
+    boolean existsByLivro_IdAndStatusEmprestimoIn(Long livroId, Collection<StatusEmprestimo> statuses);
+
 }
