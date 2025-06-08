@@ -31,7 +31,6 @@ import java.util.Optional;
 public class EmprestimoController {
 
     private final EmprestimoService emprestimoService;
-    private final EmprestimoRepository emprestimoRepository;
 
     @Autowired
     private AlunoRepository alunoRepository;
@@ -40,7 +39,6 @@ public class EmprestimoController {
 
     public EmprestimoController(EmprestimoService emprestimoService, EmprestimoRepository emprestimoRepository) {
         this.emprestimoService = emprestimoService;
-        this.emprestimoRepository = emprestimoRepository;
     }
 
     @Operation(summary = "Realiza um empréstimo", description = "Retorna o empréstimo realizado")
@@ -79,13 +77,8 @@ public class EmprestimoController {
     }
 
     @PostMapping("/{id}/renovar")
-    public ResponseEntity<Void> renovarEmprestimo(@PathVariable Long id) {
-        Boolean sucesso = emprestimoService.renovarEmprestimo(id);
-        if (sucesso) {
-            return ResponseEntity.noContent().build();
-        } else {
-            return ResponseEntity.notFound().build();
-        }
+    public ResponseEntity<Boolean> renovarEmprestimo(@PathVariable Long id) {
+         return ResponseEntity.ok(emprestimoService.renovarEmprestimo(id));
     }
 
     @PostMapping("/{id}/finalizar")
