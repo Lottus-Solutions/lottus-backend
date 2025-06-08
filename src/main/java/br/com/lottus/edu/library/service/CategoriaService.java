@@ -47,7 +47,7 @@ public class CategoriaService {
 
     public Categoria editarCategoria(Long id, Categoria categoriaRequest) {
         Categoria categoria = categoriaRepository.findById(id)
-                .orElseThrow(CategoriaNaoEncontradaException::new);add
+                .orElseThrow(CategoriaNaoEncontradaException::new);
 
         List<Categoria> categorias = categoriaRepository.findAll();
 
