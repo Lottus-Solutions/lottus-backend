@@ -1,6 +1,7 @@
 package br.com.lottus.edu.library.model;
 
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
 import org.springframework.boot.autoconfigure.web.WebProperties;
 
@@ -26,11 +27,21 @@ public class Emprestimo {
     private LocalDate dataDevolucaoPrevista;
     private int diasAtrasados;
 
+    private int qtdRenovado;
+
     @Enumerated(EnumType.STRING)
     private StatusEmprestimo statusEmprestimo;
 
     public Long getId() {
         return id;
+    }
+
+    public int getQtdRenovado() {
+        return qtdRenovado;
+    }
+
+    public void setQtdRenovado(int qtdRenovado) {
+        this.qtdRenovado = qtdRenovado;
     }
 
     public void setId(Long id) {

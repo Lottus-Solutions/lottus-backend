@@ -20,6 +20,8 @@ public class Usuario {
     private String senha;
     private Date dtRegistro;
 
+    private Integer idAvatar;
+
     public Usuario() {}
 
     public Long getId() {
@@ -60,5 +62,13 @@ public class Usuario {
 
     public void setDtRegistro(Date dtRegistro) {
         this.dtRegistro = dtRegistro;
+    }
+
+    public Integer getIdAvatar() {
+        return idAvatar;
+    }
+
+    public void setIdAvatar(Integer idAvatar) {
+        this.idAvatar = idAvatar;
     }
 }

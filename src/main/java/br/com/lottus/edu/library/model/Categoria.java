@@ -1,6 +1,8 @@
 package br.com.lottus.edu.library.model;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotEmpty;
 
 @Entity
 @Table(name = "categoria")
@@ -10,15 +12,17 @@ public class Categoria {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @NotEmpty
+    @NotBlank
+    @Column(unique = true)
     private String nome;
-    private String descricao;
+    private String cor;
 
     public Categoria() {}
 
-    public Categoria(Long id, String nome, String descricao) {
+    public Categoria(Long id, String nome) {
         this.id = id;
         this.nome = nome;
-        this.descricao = descricao;
     }
 
     public Long getId() {
@@ -37,11 +41,11 @@ public class Categoria {
         this.nome = nome;
     }
 
-    public String getDescricao() {
-        return descricao;
+    public String getCor() {
+        return cor;
     }
 
-    public void setDescricao(String descricao) {
-        this.descricao = descricao;
+    public void setCor(String cor) {
+        this.cor = cor;
     }
 }

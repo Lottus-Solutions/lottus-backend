@@ -1,6 +1,7 @@
 package br.com.lottus.edu.library.service;
 
 import br.com.lottus.edu.library.dto.AlunoDTO;
+import br.com.lottus.edu.library.dto.PerfilAlunoResponse;
 import br.com.lottus.edu.library.model.Aluno;
 import br.com.lottus.edu.library.model.Turma;
 
@@ -35,7 +36,7 @@ public interface AlunoService {
      * @param alunodto o objeto AlunoDTO com os dados atualizados para o aluno
      * @return true se a edição for bem sucedida
      */
-    Boolean editarAluno(String matricula, AlunoDTO alunodto);
+    Boolean editarAluno(Long matricula, AlunoDTO alunodto);
 
     /**
      *
@@ -43,7 +44,7 @@ public interface AlunoService {
      * @param turma a turma a ter os alunos listados
      * @return Lis<Alunos> lista de alunos da turma
      */
-    List<Aluno> listarAlunosPorTurma(Long turma);
+    List<AlunoDTO> listarAlunosPorTurma(Long turma);
 
     /**
      * Buscar aluno por matricula
@@ -51,8 +52,40 @@ public interface AlunoService {
      * @param matricula o numero da matriculo do aluno
      * @return aluno o objeto aluno para alimentação dos seus dados no perfil
      */
-    Optional<Aluno> buscarAlunoPorMatricula(String matricula);
+    AlunoDTO buscarAlunoPorMatricula(Long matricula);
+
+    List<AlunoDTO> listarAlunos();
+
+    /**
+     * Listar alunos por nome
+     *
+     * @param nome o nome do aluno a ser buscado
+     * @return lista de alunos com o nome informado
+     */
+    List<AlunoDTO> listarAlunosPorNome(String nome);
+
+    /**
+     * lista alunos dentro de uma turma por nome
+     *
+     * @return List<Aluno> lista de alunos da turma
+     * @param nome o nome do aluno a ser buscado
+     * @param idTurma o id da turma a ser buscada
+     */
+    List<AlunoDTO> buscarAlunosPorNomeETurma(String nome, Long idTurma);
 
 
+    List<Turma> listarTurmas();
+
+    void atualizarPontuacao(Aluno aluno);
+
+    void atualizarLivrosLidos(Aluno aluno);
+
+
+    /**
+     * Constroi o perfil do aluno com suas respectivas informações
+     * @param idAluno o id do aluno
+     * @return PerfilAluno o perfil do aluno construido
+     */
+    PerfilAlunoResponse construirPerfil(Long idAluno);
 
 }

@@ -1,14 +1,19 @@
 package br.com.lottus.edu.library.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Table(name = "aluno")
 public class Aluno {
 
     @Id
-    @Column(nullable = false, unique = true)
-    private String matricula;
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long matricula;
 
     private String nome;
     private Double qtdBonus;
@@ -18,6 +23,23 @@ public class Aluno {
     @JoinColumn(name = "fk_turma", nullable = false)
     private Turma turma;
 
+    @OneToMany(mappedBy = "aluno", cascade = CascadeType.REMOVE, orphanRemoval = true)
+    @JsonManagedReference
+    @JsonIgnore
+    private List<Emprestimo> emprestimos = new ArrayList<>();
+
+    public void resetarBonus() {
+        this.qtdBonus = 0.0;
+    }
+
+    public void resetarLivrosLidos() {
+        this.qtdLivrosLidos = 0;
+    }
+
+    public Boolean podeFazerEmprestimo() {
+        return emprestimos.stream()
+                .noneMatch(emprestimo -> emprestimo.getStatusEmprestimo() == StatusEmprestimo.ATIVO);
+    }
 
     public Integer getQtdLivrosLidos() {
         return qtdLivrosLidos;
@@ -27,11 +49,11 @@ public class Aluno {
         this.qtdLivrosLidos = qtdLivrosLidos;
     }
 
-    public String getMatricula() {
+    public Long getMatricula() {
         return matricula;
     }
 
-    public void setMatricula(String matricula) {
+    public void setMatricula(Long matricula) {
         this.matricula = matricula;
     }
 
@@ -59,6 +81,10 @@ public class Aluno {
         this.turma = turma;
     }
 
+    public List<Emprestimo> getEmprestimos() {
+        return emprestimos;
+    }
+
     @Override
     public String toString() {
         return "Aluno{" +
@@ -70,4 +96,3 @@ public class Aluno {
                 '}';
     }
 }
-
