@@ -36,4 +36,6 @@ public interface LivroRepository extends JpaRepository<Livro, Long> {
            Pageable pageable);
 
    Integer countByCategoriaId(Long categoriaId);
+
+   boolean existsByNomeIgnoreCase(String nome);
 }

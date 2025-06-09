@@ -36,6 +36,10 @@ public class LivroService {
     EmprestimoRepository emprestimoRepository;
 
     public LivroResponseDTO cadastrarLivro(LivroRequestDTO livroRequestDTO) {
+        if (livroJaCadastrado(livroRequestDTO.nome())) {
+            throw new LivroJaCadastradoException();
+        }
+
         Categoria categoria = buscarCategoria(livroRequestDTO.categoriaId());
 
         Livro livro = new Livro();
@@ -117,5 +121,9 @@ public class LivroService {
     private Categoria buscarCategoria(Long id) {
         return categoriaRepository.findById(id)
                 .orElseThrow(CategoriaInvalidaException::new);
+    }
+
+    private boolean livroJaCadastrado(String nome) {
+        return livroRepository.existsByNomeIgnoreCase(nome);
     }
 }

@@ -88,4 +88,9 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.CONFLICT).body(e.getMessage());
     }
 
+    @ExceptionHandler(LivroJaCadastradoException.class)
+    public ResponseEntity<String> handleLivroJaCadastrado(LivroJaCadastradoException e) {
+        return ResponseEntity.status(HttpStatus.CONFLICT).body(e.getMessage());
+    }
+
 }
