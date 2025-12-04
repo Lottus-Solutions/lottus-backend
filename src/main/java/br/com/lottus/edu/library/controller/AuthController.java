@@ -71,7 +71,6 @@ public class AuthController {
             String token = authHeader.substring(7);
             
             if (jwtUtil.validateToken(token)) {
-                // Extrair informações do token
                 String email = jwtUtil.extractEmail(token);
                 Long userId = jwtUtil.extractUserId(token);
                 

@@ -10,6 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.PriorityQueue;
 
 @Service
 public class CategoriaService {
@@ -66,4 +67,14 @@ public class CategoriaService {
         return new CategoriaDTO(categoria.getId(), categoria.getNome(), categoria.getCor(), qtdLivrosCadastrados);
     }
 
+    public synchronized Categoria obterOuCriarCategoria(CategoriaDTO categoriaDTO) {
+        Categoria categoria = categoriaRepository.findByNome(categoriaDTO.nome());
+        if (categoria == null) {
+            categoria = new Categoria();
+            categoria.setNome(categoriaDTO.nome());
+            categoria.setCor(categoriaDTO.cor());
+            categoria = categoriaRepository.save(categoria);
+        }
+        return categoria;
+    }
 }

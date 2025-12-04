@@ -50,4 +50,10 @@ public class CategoriaController {
         Categoria categoriaAtualizada = categoriaService.editarCategoria(id, categoria);
         return ResponseEntity.ok(categoriaAtualizada);
     }
+
+    @PostMapping("/obter-ou-criar")
+    public ResponseEntity<Categoria> obterOuCriarCategoria(@RequestBody CategoriaDTO categoriaDTO) {
+        Categoria categoria = categoriaService.obterOuCriarCategoria(categoriaDTO);
+        return ResponseEntity.ok(categoria);
+    }
 }

@@ -9,4 +9,5 @@ public interface CategoriaRepository extends JpaRepository<Categoria, Long> {
 
     boolean existsByNome(String nome);
 
+    Categoria findByNome(String nome);
 }
